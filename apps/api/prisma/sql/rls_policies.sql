@@ -13,17 +13,19 @@ ALTER TABLE tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 
+-- tenant_id é `text` (Prisma mapeia String @default(uuid()) para text, não
+-- para o tipo nativo `uuid` do Postgres) — comparação direta como texto.
 CREATE POLICY tenant_isolation_patients ON patients
-  USING (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+  USING (tenant_id = current_setting('app.current_tenant_id', true));
 
 CREATE POLICY tenant_isolation_tags ON tags
-  USING (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+  USING (tenant_id = current_setting('app.current_tenant_id', true));
 
 CREATE POLICY tenant_isolation_audit_logs ON audit_logs
-  USING (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+  USING (tenant_id = current_setting('app.current_tenant_id', true));
 
 CREATE POLICY tenant_isolation_subscriptions ON subscriptions
-  USING (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+  USING (tenant_id = current_setting('app.current_tenant_id', true));
 
 -- Tabelas relacionadas por FK (appointments, session_records, medical_records,
 -- financial_transactions, notifications, invoices, attachments,

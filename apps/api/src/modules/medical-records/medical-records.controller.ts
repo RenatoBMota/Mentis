@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -8,6 +9,8 @@ import { ExportMedicalRecordDto } from './dto/export-medical-record.dto';
 import { MedicalRecordsService } from './medical-records.service';
 
 /** RBAC (PRD 5.6): apenas o Profissional acessa conteúdo clínico. */
+@ApiTags('Medical Records')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.PROFESSIONAL)
 @Controller('medical-records')

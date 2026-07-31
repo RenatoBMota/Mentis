@@ -11,12 +11,15 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { ListPatientsQueryDto } from './dto/list-patients-query.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { PatientsService } from './patients.service';
 
+@ApiTags('Patients')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('patients')
 export class PatientsController {

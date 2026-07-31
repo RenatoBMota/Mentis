@@ -1,4 +1,5 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { IsDateString } from 'class-validator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { ReportsService } from './reports.service';
@@ -11,6 +12,8 @@ class AttendanceQueryDto {
   to!: string;
 }
 
+@ApiTags('Reports')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('reports')
 export class ReportsController {
