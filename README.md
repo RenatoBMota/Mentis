@@ -24,14 +24,14 @@ Ordem de desenvolvimento recomendada (ver seção 5.1 do PRD):
 
 | # | Etapa | Status |
 |---|---|---|
-| 01 | Banco de Dados (Schema & Migrations) | Em andamento |
-| 02 | Autenticação (Auth Service) | Planejado |
-| 03 | Permissões (RBAC & Multi-Tenancy) | Planejado |
-| 04 | Pipeline de Vendas & Financeiro | Planejado |
-| 05 | Histórico de Atividades & Prontuários | Planejado |
-| 06 | API RESTful (OpenAPI 3.1) | Planejado |
-| 07 | Front-End (Dashboard & Interfaces) | Planejado |
-| 08 | Workflows & Automações (WhatsApp) | Planejado |
+| 01 | Banco de Dados (Schema & Migrations) | Concluído |
+| 02 | Autenticação (Auth Service) | Concluído |
+| 03 | Permissões (RBAC & Multi-Tenancy) | Concluído |
+| 04 | Pipeline de Vendas & Financeiro | Concluído |
+| 05 | Histórico de Atividades & Prontuários | Concluído (exportação de PDF ainda pendente) |
+| 06 | API RESTful (OpenAPI 3.1) | Em andamento (Swagger em `/docs`; testes de contrato pendentes) |
+| 07 | Front-End (Dashboard & Interfaces) | Em andamento (login + dashboard; demais telas pendentes) |
+| 08 | Workflows & Automações (WhatsApp) | Em andamento (gateway abstraído em dry-run; filas BullMQ pendentes) |
 | 09 | Agentes de IA (Fase Futura) | Backlog |
 
 ### Multi-tenancy

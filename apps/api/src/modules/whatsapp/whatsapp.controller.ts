@@ -1,13 +1,16 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { SendChargeLinkDto } from './dto/send-charge-link.dto';
 import { WhatsAppService } from './whatsapp.service';
 
+@ApiTags('WhatsApp')
 @Controller()
 export class WhatsAppController {
   constructor(private readonly whatsappService: WhatsAppService) {}
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   // PRD 7.2: 10 req/min para respeitar limites do provedor de WhatsApp.
   @Throttle({ default: { ttl: 60_000, limit: 10 } })

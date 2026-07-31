@@ -1,4 +1,5 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { IsOptional, IsString } from 'class-validator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -18,6 +19,8 @@ class ListAuditLogsQueryDto {
 }
 
 /** GET /v1/audit-logs — restrito a Profissional/Supervisor (PRD 7.1, 11.3). */
+@ApiTags('Audit Logs')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.PROFESSIONAL, UserRole.SUPERVISOR)
 @Controller('audit-logs')

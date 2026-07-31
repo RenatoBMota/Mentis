@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { IsDateString } from 'class-validator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AgendaService } from './agenda.service';
@@ -9,6 +10,8 @@ class WeeklyQueryDto {
   weekStart!: string;
 }
 
+@ApiTags('Agenda')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('agenda')
 export class AgendaController {

@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -20,6 +21,8 @@ class ListTransactionsQueryDto {
   month?: number;
 }
 
+@ApiTags('Financial')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('financial')
 export class FinancialController {

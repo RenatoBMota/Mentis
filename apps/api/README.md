@@ -28,7 +28,7 @@ src/
 
 ```bash
 pnpm install
-cp ../../.env.example ../../.env   # ou configure DATABASE_URL/REDIS_URL/JWT_* localmente
+cp ../../.env.example ../../.env   # ou configure DATABASE_URL/REDIS_URL/JWT_*/ENCRYPTION_KEY localmente
 docker compose -f ../../docker-compose.yml up -d
 
 pnpm prisma:generate
@@ -38,9 +38,11 @@ pnpm prisma:seed   # cria tenant + usuário + paciente de exemplo
 pnpm dev
 ```
 
+Documentação interativa (Swagger/OpenAPI) em `http://localhost:3001/docs` — clique em "Authorize" e cole o `accessToken` retornado por `/v1/auth/login` para testar rotas protegidas.
+
 ## Pendências conhecidas deste scaffold inicial
 
-- **RLS**: políticas em `prisma/sql/rls_policies.sql` precisam ser aplicadas manualmente após a primeira migração; o isolamento hoje depende apenas do filtro `tenant_id`/`userId` na camada de aplicação (`TenantContext`).
+- **RLS**: políticas em `prisma/sql/rls_policies.sql` validadas manualmente contra Postgres real, mas ainda precisam ser aplicadas via migração (hoje é um passo manual); o isolamento em produção depende do filtro `tenant_id`/`userId` na camada de aplicação (`TenantContext`) até essa etapa ser automatizada.
 - **Filas (BullMQ/Redis)**: lembretes de cobrança em 48h (RF-07) e lançamentos recorrentes (RF-10) têm a lógica de domínio pronta, mas ainda não são agendados via job — TODOs marcados no código.
 - **Exportação de PDF** (RF-06) e **geração de relatórios XLS** (RF-11) ainda não implementadas — endpoints registram a intenção/auditoria e retornam `501`.
 - **Integração real com Evolution API/Z-API**: `EvolutionApiGateway` opera em modo dry-run sem `WHATSAPP_API_URL` configurada.
