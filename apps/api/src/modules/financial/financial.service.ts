@@ -33,7 +33,7 @@ export class FinancialService {
   async create(dto: CreateTransactionDto) {
     const { userId } = this.tenantContext.get()!;
     const transaction = await this.prisma.financialTransaction.create({
-      data: { ...dto, userId },
+      data: { ...dto, dueDate: new Date(dto.dueDate), userId },
     });
     return { data: transaction };
   }
@@ -62,15 +62,30 @@ export class FinancialService {
     return { data: { total, sessions: scheduled } };
   }
 
+  /** IDs de usuários com ao menos um template de lançamento recorrente ativo. */
+  async listUserIdsWithRecurringTemplates(): Promise<string[]> {
+    const rows = await this.prisma.financialTransaction.findMany({
+      where: { recurring: true },
+      select: { userId: true },
+      distinct: ['userId'],
+    });
+    return rows.map((row) => row.userId);
+  }
+
   /**
    * RF-10: lançamentos recorrentes no 1º dia do mês (aluguel, supervisão,
-   * assinatura PsiFlow etc.). Deve ser disparado por um job agendado (BullMQ)
-   * no dia 1 de cada mês; aqui apenas a lógica de replicação dos templates.
+   * assinatura PsiFlow etc.), disparado pelo job agendado da fila
+   * `recurring-launches`. Cria a notificação in-app resumindo o que foi
+   * lançado, conforme critério de aceite da história.
    */
   async launchMonthlyRecurring(userId: string) {
     const templates = await this.prisma.financialTransaction.findMany({
       where: { userId, recurring: true },
     });
+
+    if (templates.length === 0) {
+      return { data: [] };
+    }
 
     const now = new Date();
     const dueDate = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -90,6 +105,22 @@ export class FinancialService {
         }),
       ),
     );
+
+    const total = created.reduce((sum, t) => sum + Number(t.amount), 0);
+    await this.prisma.notification.create({
+      data: {
+        userId,
+        channel: 'IN_APP',
+        type: 'SYSTEM',
+        payload: {
+          summary: `${created.length} lançamento(s) recorrente(s) do mês adicionados automaticamente.`,
+          total,
+          categories: created.map((t) => t.category),
+        },
+        status: 'SENT',
+        sentAt: new Date(),
+      },
+    });
 
     return { data: created };
   }

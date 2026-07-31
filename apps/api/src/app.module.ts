@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { PrismaModule } from './prisma/prisma.module';
 import { CryptoModule } from './common/crypto/crypto.module';
+import { QueueModule } from './queue/queue.module';
 import { TenantContextModule } from './common/tenant/tenant-context.module';
 import { TenantContextInterceptor } from './common/tenant/tenant-context.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
@@ -24,6 +25,7 @@ import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     PrismaModule,
     CryptoModule,
+    QueueModule,
     TenantContextModule,
     AuthModule,
     PatientsModule,

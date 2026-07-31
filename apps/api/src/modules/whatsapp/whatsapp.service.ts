@@ -1,14 +1,18 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
 import { WHATSAPP_GATEWAY, WhatsAppGateway } from './whatsapp-gateway.interface';
+import { PAYMENT_REMINDER_QUEUE, PaymentReminderJobData } from './payment-reminder.queue';
 
-const PAYMENT_REMINDER_DELAY_HOURS = 48;
+const PAYMENT_REMINDER_DELAY_MS = 48 * 60 * 60 * 1000;
 
 @Injectable()
 export class WhatsAppService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(WHATSAPP_GATEWAY) private readonly gateway: WhatsAppGateway,
+    @InjectQueue(PAYMENT_REMINDER_QUEUE) private readonly reminderQueue: Queue<PaymentReminderJobData>,
   ) {}
 
   /**
@@ -52,8 +56,11 @@ export class WhatsAppService {
       }),
     ]);
 
-    // TODO: enfileirar lembrete de 48h via BullMQ (Redis) — RF-07.
-    void PAYMENT_REMINDER_DELAY_HOURS;
+    await this.reminderQueue.add(
+      'payment-reminder',
+      { sessionRecordId },
+      { delay: PAYMENT_REMINDER_DELAY_MS, jobId: `reminder-${sessionRecordId}` },
+    );
 
     return { data: notification };
   }
