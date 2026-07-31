@@ -74,7 +74,7 @@ export class FinancialService {
 
   /**
    * RF-10: lançamentos recorrentes no 1º dia do mês (aluguel, supervisão,
-   * assinatura PsiFlow etc.), disparado pelo job agendado da fila
+   * assinatura Mentis etc.), disparado pelo job agendado da fila
    * `recurring-launches`. Cria a notificação in-app resumindo o que foi
    * lançado, conforme critério de aceite da história.
    */

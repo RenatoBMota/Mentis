@@ -1,4 +1,4 @@
-# PsiFlow — Product Requirements Document
+# Mentis — Product Requirements Document
 
 **Sistema Clínico de Gestão para Psicólogos**
 
@@ -12,7 +12,7 @@
 | Integração principal | WhatsApp Business API (Cobranças e Lembretes) |
 | Data | Julho de 2026 · Product & Engineering |
 
-> Fonte original: `PsiFlow_PRD_v2.0.docx` (neste mesmo diretório).
+> Fonte original: `PsiFlow_PRD_v2.0.docx` (neste mesmo diretório) — nome do arquivo original anterior ao rebranding do produto para Mentis.
 
 ## Sumário
 
@@ -39,9 +39,9 @@
 
 ## 1. Sumário Executivo
 
-O PsiFlow é uma plataforma SaaS vertical voltada à gestão clínica, agendamento e financeiro de psicólogos autônomos e pequenas clínicas. O produto resolve um problema operacional recorrente na categoria: profissionais da psicologia perdem tempo e receita gerenciando prontuários em papel, planilhas soltas e cobranças manuais via WhatsApp, o que gera inadimplência, retrabalho administrativo e risco de não conformidade com a LGPD e o Código de Ética do CFP.
+O Mentis é uma plataforma SaaS vertical voltada à gestão clínica, agendamento e financeiro de psicólogos autônomos e pequenas clínicas. O produto resolve um problema operacional recorrente na categoria: profissionais da psicologia perdem tempo e receita gerenciando prontuários em papel, planilhas soltas e cobranças manuais via WhatsApp, o que gera inadimplência, retrabalho administrativo e risco de não conformidade com a LGPD e o Código de Ética do CFP.
 
-A proposta de valor do PsiFlow é tripla: **eliminar o trabalho manual administrativo** por meio de automações; **reduzir a inadimplência** com cobrança automatizada em um clique via WhatsApp; e **garantir um prontuário eletrônico 100% digital**, seguro e auditável.
+A proposta de valor do Mentis é tripla: **eliminar o trabalho manual administrativo** por meio de automações; **reduzir a inadimplência** com cobrança automatizada em um clique via WhatsApp; e **garantir um prontuário eletrônico 100% digital**, seguro e auditável.
 
 Indicadores-chave da visão de produto: 4 fases de entrega até GA · < 1s tempo de carregamento-alvo · 99,5% SLA de disponibilidade · AES-256 padrão de criptografia em repouso.
 
@@ -60,7 +60,7 @@ Organizado em camadas: visão de produto (seções 2–4) → arquitetura técni
 
 ### 2.2. Solução
 
-O PsiFlow centraliza agenda, prontuário, cobrança e financeiro em uma única plataforma multi-tenant, com automações que eliminam etapas manuais — em especial o disparo de cobrança formatada via WhatsApp API a partir de um único clique sobre uma sessão pendente.
+O Mentis centraliza agenda, prontuário, cobrança e financeiro em uma única plataforma multi-tenant, com automações que eliminam etapas manuais — em especial o disparo de cobrança formatada via WhatsApp API a partir de um único clique sobre uma sessão pendente.
 
 ### 2.3. Proposta de Valor Principal
 
@@ -98,9 +98,9 @@ Administra múltiplos psicólogos; precisa de visão consolidada de ocupação e
 
 ## 4. Análise Competitiva & Posicionamento
 
-Mercado brasileiro dominado por: (a) prontuário eletrônico genérico adaptado de outras áreas da saúde, (b) planilhas e agendas de papel, (c) soluções pontuais de cobrança via link de pagamento sem integração com a agenda. O PsiFlow une prontuário, agenda e cobrança automatizada via WhatsApp em um fluxo único, com Dark Mode pensado para uso diário.
+Mercado brasileiro dominado por: (a) prontuário eletrônico genérico adaptado de outras áreas da saúde, (b) planilhas e agendas de papel, (c) soluções pontuais de cobrança via link de pagamento sem integração com a agenda. O Mentis une prontuário, agenda e cobrança automatizada via WhatsApp em um fluxo único, com Dark Mode pensado para uso diário.
 
-| Dimensão | Prontuário genérico adaptado | Planilhas / Agenda física | PsiFlow |
+| Dimensão | Prontuário genérico adaptado | Planilhas / Agenda física | Mentis |
 |---|---|---|---|
 | Cobrança automatizada via WhatsApp | Não | Não | Sim, 1 clique |
 | Prontuário com criptografia dedicada e tags clínicas | Parcial | Não | Sim (AES-256 + tags TCC etc.) |
@@ -164,7 +164,7 @@ Multi-tenant com isolamento lógico por coluna (`tenant_id` / `user_id`) em toda
 
 ## 6. Modelo de Dados
 
-Expande as entidades originais com tabelas de suporte para cobrança recorrente, notificações, planos de assinatura (o próprio PsiFlow como SaaS) e trilha de auditoria — requisito direto da LGPD e do Código de Ética do CFP.
+Expande as entidades originais com tabelas de suporte para cobrança recorrente, notificações, planos de assinatura (o próprio Mentis como SaaS) e trilha de auditoria — requisito direto da LGPD e do Código de Ética do CFP.
 
 ### 6.1. Entidades Principais
 
@@ -181,12 +181,12 @@ Expande as entidades originais com tabelas de suporte para cobrança recorrente,
 
 | Entidade | Campos-chave | Propósito |
 |---|---|---|
-| Subscription (Plano SaaS) | id, user_id, plan_tier, status, current_period_end | Controla o plano contratado do próprio PsiFlow (Starter/Pro/Clínica) |
+| Subscription (Plano SaaS) | id, user_id, plan_tier, status, current_period_end | Controla o plano contratado do próprio Mentis (Starter/Pro/Clínica) |
 | Notification | id, user_id, channel, type, payload, sent_at, status | Registro de lembretes e cobranças disparados (WhatsApp, e-mail, in-app) |
 | AuditLog | id, actor_id, entity, entity_id, action, diff, created_at | Trilha imutável de alterações em prontuário e dados sensíveis (LGPD/CFP) |
 | Tag | id, name, category, tenant_id | Vocabulário clínico reutilizável (ex.: TCC, Ansiedade, Reestruturação Cognitiva) |
 | Attachment | id, medical_record_id, file_url, mime_type, checksum | Anexos ao prontuário (ex.: testes psicométricos digitalizados), com checksum de integridade |
-| Invoice (Fatura SaaS) | id, subscription_id, amount, due_date, status | Cobrança do próprio PsiFlow ao psicólogo assinante, distinta da cobrança do paciente |
+| Invoice (Fatura SaaS) | id, subscription_id, amount, due_date, status | Cobrança do próprio Mentis ao psicólogo assinante, distinta da cobrança do paciente |
 
 ### 6.3. Relacionamentos-chave
 
@@ -288,7 +288,7 @@ Como psicólogo, quero ver a projeção de receita do mês com base nas sessões
 - Previsão recalculada em tempo real a cada novo agendamento, cancelamento ou alteração de valor por sessão.
 
 **RF-10 — Lançamentos recorrentes**
-Como psicólogo, quero cadastrar despesas fixas (aluguel da sala, supervisão clínica, assinatura do PsiFlow) para que sejam lançadas automaticamente todo mês.
+Como psicólogo, quero cadastrar despesas fixas (aluguel da sala, supervisão clínica, assinatura do Mentis) para que sejam lançadas automaticamente todo mês.
 - Lançamentos automáticos ocorrem no 1º dia do mês, com notificação in-app resumindo o que foi lançado.
 
 ### 8.6. Módulo de Relatórios
@@ -482,7 +482,7 @@ Assinatura SaaS mensal, planos segmentados por porte de operação. A cobrança 
 
 ### 18.2. Documentos de Referência
 
-- Documento-fonte: PRD PsiFlow v1.0.0 — Especificação Completa de Arquitetura, Módulos Back-End e Telas Front-End.
+- Documento-fonte: PRD Mentis v1.0.0 — Especificação Completa de Arquitetura, Módulos Back-End e Telas Front-End.
 - Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018).
 - Código de Ética Profissional do Psicólogo, Conselho Federal de Psicologia.
 

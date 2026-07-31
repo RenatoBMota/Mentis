@@ -1,6 +1,6 @@
-# @psiflow/api
+# @mentis/api
 
-Back-end NestJS do PsiFlow — implementa as Etapas 01–06 do roadmap técnico (PRD seção 5.1): banco de dados, autenticação, RBAC/multi-tenancy, financeiro, prontuário e API REST.
+Back-end NestJS do Mentis — implementa as Etapas 01–06 do roadmap técnico (PRD seção 5.1): banco de dados, autenticação, RBAC/multi-tenancy, financeiro, prontuário e API REST.
 
 ## Estrutura
 

@@ -1,5 +1,5 @@
 /**
- * Design tokens do PsiFlow — paleta nude/bege/verde-sálvia (substitui o
+ * Design tokens do Mentis — paleta nude/bege/verde-sálvia (substitui o
  * Dark Mode navy/ciano da PRD 9.1 original por decisão de produto).
  * Fonte única de verdade também consumida pelo tailwind.config.ts.
  */

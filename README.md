@@ -1,4 +1,4 @@
-# PsiFlow
+# Mentis
 
 Sistema clínico de gestão para psicólogos autônomos, consultórios e clínicas multiprofissionais — agenda, prontuário eletrônico, cobrança automatizada via WhatsApp e financeiro integrado, em uma plataforma SaaS multi-tenant.
 
