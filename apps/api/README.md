@@ -16,6 +16,7 @@ src/
     auth/             RF-01, RF-02 — login, refresh, hashing Argon2id
     patients/         Cadastro e listagem de pacientes
     agenda/            RF-03, RF-04 — agenda semanal e recorrência
+    sessions/          Marca sessão como realizada (gera SessionRecord) e lista histórico com status de pagamento
     medical-records/  RF-05, RF-06 — prontuário e exportação PDF (RBAC: Profissional)
     financial/        RF-08, RF-09, RF-10 — pagamentos, previsão, recorrência
     whatsapp/         RF-07 — cobrança via WhatsApp (gateway abstraído)
