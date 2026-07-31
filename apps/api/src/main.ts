@@ -20,9 +20,9 @@ async function bootstrap() {
 
   // PRD 5.1 (Etapa 06) / 7: contrato OpenAPI 3.1 servido em /docs.
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('PsiFlow API')
+    .setTitle('Mentis API')
     .setDescription(
-      'API do PsiFlow — agenda, prontuário clínico, cobrança via WhatsApp e financeiro para psicólogos autônomos e clínicas. Todas as rotas (exceto auth e webhook) exigem Bearer JWT.',
+      'API do Mentis — agenda, prontuário clínico, cobrança via WhatsApp e financeiro para psicólogos autônomos e clínicas. Todas as rotas (exceto auth e webhook) exigem Bearer JWT.',
     )
     .setVersion('1.0')
     .addBearerAuth()

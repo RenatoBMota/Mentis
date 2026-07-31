@@ -54,7 +54,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   function handleLogout() {
-    localStorage.removeItem('psiflow_access_token');
+    localStorage.removeItem('mentis_access_token');
     router.push('/login');
   }
 
@@ -66,7 +66,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <div className="h-2.5 w-2.5 rounded-full bg-accent-primary" />
           </div>
           <div className="leading-tight">
-            <p className="font-serif text-base font-medium text-ink">PsiFlow</p>
+            <p className="font-serif text-base font-medium text-ink">Mentis</p>
             <p className="text-[10px] uppercase tracking-wide text-ink-faint">Sistema Clínico</p>
           </div>
         </div>

@@ -1,30 +1,30 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: psiflow-postgres
+    container_name: mentis-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: psiflow
-      POSTGRES_PASSWORD: psiflow
-      POSTGRES_DB: psiflow
+      POSTGRES_USER: mentis
+      POSTGRES_PASSWORD: mentis
+      POSTGRES_DB: mentis
     ports:
       - "5432:5432"
     volumes:
-      - psiflow_postgres_data:/var/lib/postgresql/data
+      - mentis_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U psiflow"]
+      test: ["CMD-SHELL", "pg_isready -U mentis"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   redis:
     image: redis:7-alpine
-    container_name: psiflow-redis
+    container_name: mentis-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
-      - psiflow_redis_data:/data
+      - mentis_redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -32,5 +32,5 @@ services:
       retries: 10
 
 volumes:
-  psiflow_postgres_data:
-  psiflow_redis_data:
+  mentis_postgres_data:
+  mentis_redis_data:

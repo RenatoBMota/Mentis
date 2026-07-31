@@ -15,7 +15,7 @@ const body = Work_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'PsiFlow',
+  title: 'Mentis',
   description: 'Sistema clínico de gestão para psicólogos',
 };
 

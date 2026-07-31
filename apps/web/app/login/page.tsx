@@ -28,7 +28,7 @@ export default function LoginPage() {
         '/auth/login',
         { method: 'POST', body: JSON.stringify({ email, password }) },
       );
-      localStorage.setItem('psiflow_access_token', accessToken);
+      localStorage.setItem('mentis_access_token', accessToken);
       router.push('/dashboard');
     } catch (err) {
       setError(err instanceof ApiError ? 'E-mail ou senha inválidos.' : 'Erro ao entrar. Tente novamente.');
@@ -49,7 +49,7 @@ export default function LoginPage() {
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-accent-primary">
             <div className="h-3.5 w-3.5 rounded-full bg-accent-primary" />
           </div>
-          <h1 className="font-serif text-2xl font-medium text-ink">PsiFlow</h1>
+          <h1 className="font-serif text-2xl font-medium text-ink">Mentis</h1>
           <p className="mt-1 text-sm text-ink-muted">Acesse sua conta clínica</p>
         </div>
 

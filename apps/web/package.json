@@ -1,8 +1,8 @@
 {
-  "name": "@psiflow/web",
+  "name": "@mentis/web",
   "version": "0.1.0",
   "private": true,
-  "description": "PsiFlow Web — Next.js + Tailwind + shadcn/ui",
+  "description": "Mentis Web — Next.js + Tailwind + shadcn/ui",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

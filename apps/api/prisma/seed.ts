@@ -8,7 +8,7 @@ async function main() {
     data: { name: 'Consultório Dra. Mariana Souza' },
   });
 
-  const passwordHash = await AuthService.hashPassword('psiflow-dev-2026');
+  const passwordHash = await AuthService.hashPassword('mentis-dev-2026');
 
   const user = await prisma.user.create({
     data: {
@@ -36,7 +36,7 @@ async function main() {
     },
   });
 
-  console.log(`Seed concluído. Login: ${user.email} / senha: psiflow-dev-2026`);
+  console.log(`Seed concluído. Login: ${user.email} / senha: mentis-dev-2026`);
 }
 
 main()

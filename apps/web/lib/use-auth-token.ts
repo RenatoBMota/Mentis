@@ -10,7 +10,7 @@ export function useAuthToken(): string | null | undefined {
   const [token, setToken] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
-    setToken(localStorage.getItem('psiflow_access_token'));
+    setToken(localStorage.getItem('mentis_access_token'));
   }, []);
 
   return token;
