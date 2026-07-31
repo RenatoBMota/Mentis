@@ -20,7 +20,7 @@ export function KpiCard({ label, value, changeLabel, changePositive, loading }: 
         {loading ? (
           <div className="skeleton h-8 w-24" />
         ) : (
-          <p className="text-2xl font-bold text-slate-50">{value}</p>
+          <p className="font-serif text-2xl font-medium text-ink">{value}</p>
         )}
         {changeLabel && !loading && (
           <p

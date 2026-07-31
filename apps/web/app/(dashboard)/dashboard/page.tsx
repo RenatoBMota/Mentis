@@ -44,7 +44,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-bold text-slate-50">Visão Geral</h1>
+      <h1 className="text-xl font-bold text-ink">Visão Geral</h1>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <KpiCard label="Sessões Hoje" value={String(summary?.appointmentsToday ?? 0)} loading={loading} />

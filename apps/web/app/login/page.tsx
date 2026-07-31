@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { apiFetch, ApiError } from '@/lib/api-client';
+import { designTokens } from '@/lib/design-tokens';
 
 /** Tela de Autenticação (PRD 9.2). */
 export default function LoginPage() {
@@ -37,11 +38,19 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-surface-base px-4">
-      <div className="w-full max-w-sm rounded-lg border border-white/10 bg-surface-raised/70 p-8 shadow-2xl backdrop-blur-xl">
+    <main
+      className="flex min-h-screen items-center justify-center px-4"
+      style={{
+        background: `radial-gradient(640px 320px at 18% 0%, ${designTokens.accent.soft}, transparent 60%), ${designTokens.ground}`,
+      }}
+    >
+      <div className="w-full max-w-sm rounded-lg border border-border bg-surface-base p-8 shadow-2xl">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-slate-50">PsiFlow</h1>
-          <p className="mt-1 text-sm text-slate-400">Acesse sua conta clínica</p>
+          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-accent-primary">
+            <div className="h-3.5 w-3.5 rounded-full bg-accent-primary" />
+          </div>
+          <h1 className="font-serif text-2xl font-medium text-ink">PsiFlow</h1>
+          <p className="mt-1 text-sm text-ink-muted">Acesse sua conta clínica</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -73,7 +82,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -92,7 +101,7 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <footer className="mt-8 border-t border-white/10 pt-4 text-center text-xs text-slate-500">
+        <footer className="mt-8 border-t border-border pt-4 text-center text-xs text-ink-faint">
           Dra. Mariana Souza • Psicóloga Clínica • CRP 06/123456
         </footer>
       </div>

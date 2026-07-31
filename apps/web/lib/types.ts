@@ -25,6 +25,25 @@ export interface Appointment {
   patient?: { id: string; fullName: string };
 }
 
+export type PaymentStatus = 'PENDING' | 'PAID' | 'OVERDUE';
+export type PaymentMethod = 'PIX' | 'BANK_TRANSFER' | 'CARD';
+
+export interface SessionRecord {
+  id: string;
+  appointmentId: string;
+  patientId: string;
+  paymentStatus: PaymentStatus;
+  paymentMethod: PaymentMethod | null;
+  date: string;
+  chargeSentAt: string | null;
+  paidAt: string | null;
+}
+
+export interface SessionRow extends Appointment {
+  patient: { id: string; fullName: string };
+  sessionRecord: SessionRecord | null;
+}
+
 export type FinancialTransactionType = 'INCOME' | 'EXPENSE';
 export type FinancialScope = 'OFFICE' | 'PERSONAL';
 export type FinancialTransactionStatus = 'PENDING' | 'PAID' | 'CANCELED';
@@ -56,4 +75,15 @@ export interface MedicalRecord {
   version: number;
   createdAt: string;
   tags: Tag[];
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  crp: string | null;
+  phone: string | null;
+  pixKey: string | null;
+  role: 'PROFESSIONAL' | 'RECEPTIONIST' | 'SUPERVISOR';
+  planType: 'STARTER' | 'PRO' | 'CLINIC';
 }

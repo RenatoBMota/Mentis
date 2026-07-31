@@ -16,10 +16,9 @@ import { Select } from '@/components/ui/select';
 import { useCreateTransaction } from '@/lib/hooks/use-financial';
 import { FinancialScope, FinancialTransactionType } from '@/lib/types';
 
-export function NewTransactionDialog() {
+export function NewTransactionDialog({ scope }: { scope: FinancialScope }) {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<FinancialTransactionType>('EXPENSE');
-  const [scope, setScope] = useState<FinancialScope>('OFFICE');
   const [category, setCategory] = useState('');
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState('');
@@ -30,7 +29,6 @@ export function NewTransactionDialog() {
 
   function resetForm() {
     setType('EXPENSE');
-    setScope('OFFICE');
     setCategory('');
     setAmount('');
     setDueDate('');
@@ -70,21 +68,12 @@ export function NewTransactionDialog() {
           <DialogTitle>Novo lançamento</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="type">Tipo</Label>
-              <Select id="type" value={type} onChange={(e) => setType(e.target.value as FinancialTransactionType)}>
-                <option value="INCOME">Receita</option>
-                <option value="EXPENSE">Despesa</option>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="scope">Escopo</Label>
-              <Select id="scope" value={scope} onChange={(e) => setScope(e.target.value as FinancialScope)}>
-                <option value="OFFICE">Consultório</option>
-                <option value="PERSONAL">Pessoal</option>
-              </Select>
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="type">Tipo</Label>
+            <Select id="type" value={type} onChange={(e) => setType(e.target.value as FinancialTransactionType)}>
+              <option value="INCOME">Receita</option>
+              <option value="EXPENSE">Despesa</option>
+            </Select>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -123,12 +112,12 @@ export function NewTransactionDialog() {
             </div>
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-slate-300">
+          <label className="flex items-center gap-2 text-sm text-ink-muted">
             <input
               type="checkbox"
               checked={recurring}
               onChange={(e) => setRecurring(e.target.checked)}
-              className="h-4 w-4 rounded border-white/20 bg-surface-base accent-accent-highlight"
+              className="h-4 w-4 rounded border-border bg-surface-base accent-accent-primary"
             />
             Lançamento recorrente (repete todo mês)
           </label>

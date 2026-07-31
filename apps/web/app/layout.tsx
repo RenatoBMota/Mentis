@@ -1,9 +1,18 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Fraunces, Work_Sans } from 'next/font/google';
 import { Providers } from './providers';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const display = Fraunces({
+  subsets: ['latin'],
+  weight: ['500', '600'],
+  variable: '--font-display',
+});
+const body = Work_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-body',
+});
 
 export const metadata: Metadata = {
   title: 'PsiFlow',
@@ -12,8 +21,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className="dark">
-      <body className={inter.variable}>
+    <html lang="pt-BR">
+      <body className={`${display.variable} ${body.variable}`}>
         <Providers>{children}</Providers>
       </body>
     </html>

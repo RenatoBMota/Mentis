@@ -10,11 +10,11 @@ import { Appointment, AppointmentStatus } from '@/lib/types';
 import { NewAppointmentDialog } from './new-appointment-dialog';
 
 const STATUS_CLASSES: Record<AppointmentStatus, string> = {
-  SCHEDULED: 'bg-accent-highlight/20 border-accent-highlight/40 text-accent-highlight',
-  CONFIRMED: 'bg-status-success/20 border-status-success/40 text-status-success',
-  COMPLETED: 'bg-status-success/20 border-status-success/40 text-status-success',
-  NO_SHOW: 'bg-status-danger/20 border-status-danger/40 text-status-danger',
-  CANCELED: 'bg-white/10 border-white/20 text-slate-400 line-through',
+  SCHEDULED: 'bg-accent-soft border-accent-primary/30 text-accent-strong',
+  CONFIRMED: 'bg-status-success-soft border-status-success/30 text-status-success',
+  COMPLETED: 'bg-status-success-soft border-status-success/30 text-status-success',
+  NO_SHOW: 'bg-status-danger-soft border-status-danger/30 text-status-danger',
+  CANCELED: 'bg-surface-raised border-border text-ink-faint line-through',
 };
 
 /** Gestão de Agenda Semanal (PRD 9.4). */
@@ -54,12 +54,12 @@ export default function AgendaPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-50">Agenda</h1>
+        <h1 className="text-xl font-bold text-ink">Agenda</h1>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setWeekStart((prev) => addDays(prev, -7))}>
             <ChevronLeft size={16} />
           </Button>
-          <span className="text-sm text-slate-300">
+          <span className="text-sm text-ink-muted">
             {weekStart.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} –{' '}
             {addDays(weekStart, 4).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
           </span>
@@ -71,15 +71,15 @@ export default function AgendaPage() {
 
       <div className="card overflow-x-auto p-0">
         <div className="grid min-w-[700px] grid-cols-[64px_repeat(5,1fr)]">
-          <div className="border-b border-white/10 p-2" />
+          <div className="border-b border-border p-2" />
           {WEEKDAY_LABELS.map((label, i) => (
             <div
               key={label}
-              className="border-b border-l border-white/10 p-2 text-center text-xs font-medium text-slate-400"
+              className="border-b border-l border-border p-2 text-center text-xs font-medium text-ink-muted"
             >
               {label}
               <br />
-              <span className="text-slate-500">
+              <span className="text-ink-faint">
                 {addDays(weekStart, i).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
               </span>
             </div>
@@ -87,7 +87,7 @@ export default function AgendaPage() {
 
           {AGENDA_HOURS.map((hour) => (
             <div key={hour} className="contents">
-              <div className="border-b border-white/5 p-2 text-right text-xs text-slate-500">{hour}:00</div>
+              <div className="border-b border-border p-2 text-right text-xs text-ink-faint">{hour}:00</div>
               {WEEKDAY_LABELS.map((_, i) => {
                 const day = addDays(weekStart, i);
                 const appointment = appointmentsBySlot.get(slotKey(day, hour));
@@ -97,8 +97,8 @@ export default function AgendaPage() {
                     onClick={() => !appointment && handleSlotClick(day, hour)}
                     disabled={Boolean(appointment)}
                     className={cn(
-                      'min-h-14 border-b border-l border-white/5 p-1 text-left transition-colors',
-                      !appointment && 'hover:bg-white/5',
+                      'min-h-14 border-b border-l border-border p-1 text-left transition-colors',
+                      !appointment && 'hover:bg-surface-raised',
                     )}
                   >
                     {appointment && (
@@ -123,13 +123,13 @@ export default function AgendaPage() {
       </div>
 
       <div className="card">
-        <h2 className="mb-3 text-sm font-semibold text-slate-300">Próximas sessões</h2>
-        {upcoming.length === 0 && <p className="text-sm text-slate-500">Nenhuma sessão futura nesta semana.</p>}
+        <h2 className="mb-3 text-sm font-semibold text-ink-muted">Próximas sessões</h2>
+        {upcoming.length === 0 && <p className="text-sm text-ink-faint">Nenhuma sessão futura nesta semana.</p>}
         <ul className="flex flex-col gap-2">
           {upcoming.map((appointment) => (
             <li key={appointment.id} className="flex items-center justify-between text-sm">
-              <span className="text-slate-200">{appointment.patient?.fullName ?? 'Paciente'}</span>
-              <span className="text-slate-500">
+              <span className="text-ink">{appointment.patient?.fullName ?? 'Paciente'}</span>
+              <span className="text-ink-faint">
                 {new Date(appointment.dateTime).toLocaleString('pt-BR', {
                   weekday: 'short',
                   day: '2-digit',
