@@ -4,15 +4,18 @@ services:
     container_name: mentis-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: mentis
-      POSTGRES_PASSWORD: mentis
-      POSTGRES_DB: mentis
+      POSTGRES_USER: ${POSTGRES_USER:-mentis}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mentis}
+      POSTGRES_DB: ${POSTGRES_DB:-mentis}
+    # Só acessível pela rede interna do Compose (api/web). Se precisar
+    # conectar de fora (ex.: cliente SQL na própria VPS), isso publica
+    # a porta só em loopback — nunca na interface pública.
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - mentis_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mentis"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mentis}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -22,7 +25,7 @@ services:
     container_name: mentis-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - mentis_redis_data:/data
     healthcheck:
@@ -30,6 +33,40 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: mentis-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Aponta para os serviços da própria rede do Compose — sobrescreve
+      # qualquer DATABASE_URL/REDIS_URL "localhost" herdado do .env.
+      DATABASE_URL: postgresql://${POSTGRES_USER:-mentis}:${POSTGRES_PASSWORD:-mentis}@postgres:5432/${POSTGRES_DB:-mentis}?schema=public
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    container_name: mentis-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
 
 volumes:
   mentis_postgres_data:
