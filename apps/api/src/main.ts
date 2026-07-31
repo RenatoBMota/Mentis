@@ -14,7 +14,9 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  app.enableCors();
+  // Content-Disposition precisa ser liberado explicitamente para o front-end
+  // conseguir ler o filename em downloads cross-origin (ex.: export-pdf).
+  app.enableCors({ exposedHeaders: ['Content-Disposition'] });
 
   // PRD 5.1 (Etapa 06) / 7: contrato OpenAPI 3.1 servido em /docs.
   const swaggerConfig = new DocumentBuilder()

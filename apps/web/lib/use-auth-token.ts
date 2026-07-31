@@ -2,8 +2,12 @@
 
 import { useEffect, useState } from 'react';
 
-export function useAuthToken(): string | null {
-  const [token, setToken] = useState<string | null>(null);
+/**
+ * `undefined` = ainda não checou o localStorage (evita flash de redirect
+ * antes da hidratação); `null` = checou e não há sessão; `string` = token.
+ */
+export function useAuthToken(): string | null | undefined {
+  const [token, setToken] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
     setToken(localStorage.getItem('psiflow_access_token'));
