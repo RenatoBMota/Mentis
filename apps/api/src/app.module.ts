@@ -10,6 +10,7 @@ import { TenantContextInterceptor } from './common/tenant/tenant-context.interce
 import { AuthModule } from './modules/auth/auth.module';
 import { PatientsModule } from './modules/patients/patients.module';
 import { AgendaModule } from './modules/agenda/agenda.module';
+import { SessionsModule } from './modules/sessions/sessions.module';
 import { MedicalRecordsModule } from './modules/medical-records/medical-records.module';
 import { FinancialModule } from './modules/financial/financial.module';
 import { WhatsAppModule } from './modules/whatsapp/whatsapp.module';
@@ -30,6 +31,7 @@ import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
     AuthModule,
     PatientsModule,
     AgendaModule,
+    SessionsModule,
     MedicalRecordsModule,
     FinancialModule,
     WhatsAppModule,

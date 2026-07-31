@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -112,6 +113,26 @@ export class AuthService {
     });
 
     return { accessToken, refreshToken };
+  }
+
+  async me(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        crp: true,
+        phone: true,
+        pixKey: true,
+        role: true,
+        planType: true,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('USER_NOT_FOUND');
+    }
+    return { data: user };
   }
 
   static async hashPassword(plain: string): Promise<string> {
