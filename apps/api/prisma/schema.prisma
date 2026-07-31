@@ -1,0 +1,396 @@
+// PsiFlow — Modelo de dados (PRD v2.0, seção 6)
+// Multi-tenant: isolamento lógico via tenant_id, reforçado por RLS no Postgres (seção 5.5).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  PROFESSIONAL // Profissional (owner) — acesso total
+  RECEPTIONIST // Recepcionista — agenda + status de pagamento
+  SUPERVISOR // Supervisor Clínico — dashboards agregados e auditoria
+}
+
+enum PlanType {
+  STARTER
+  PRO
+  CLINIC
+}
+
+enum PatientRecurrenceType {
+  WEEKLY
+  BIWEEKLY
+  ONE_OFF
+}
+
+enum PatientStatus {
+  ACTIVE
+  IN_EVALUATION
+  INACTIVE
+}
+
+enum AppointmentModality {
+  IN_PERSON
+  ONLINE
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  NO_SHOW
+  CANCELED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum PaymentMethod {
+  PIX
+  BANK_TRANSFER
+  CARD
+}
+
+enum FinancialTransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum FinancialScope {
+  OFFICE
+  PERSONAL
+}
+
+enum FinancialTransactionStatus {
+  PENDING
+  PAID
+  CANCELED
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELED
+}
+
+enum NotificationChannel {
+  WHATSAPP
+  EMAIL
+  IN_APP
+}
+
+enum NotificationType {
+  CHARGE
+  PAYMENT_REMINDER
+  APPOINTMENT_REMINDER
+  SYSTEM
+}
+
+enum NotificationStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  EXPORT
+  READ_SENSITIVE
+}
+
+// ---------------------------------------------------------------------------
+// Tenant
+// ---------------------------------------------------------------------------
+
+/// Uma conta PsiFlow (consultório autônomo ou clínica multiprofissional).
+/// Todo dado sensível referencia tenantId para isolamento lógico (seção 5.5).
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users         User[]
+  patients      Patient[]
+  tags          Tag[]
+  subscriptions Subscription[]
+  auditLogs     AuditLog[]
+
+  @@map("tenants")
+}
+
+// ---------------------------------------------------------------------------
+// Entidades principais (PRD 6.1)
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String   @id @default(uuid())
+  tenantId     String   @map("tenant_id")
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  crp          String?
+  phone        String?
+  role         UserRole @default(PROFESSIONAL)
+  planType     PlanType @default(STARTER) @map("plan_type")
+  pixKey       String?  @map("pix_key")
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime? @map("locked_until")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  tenant               Tenant                @relation(fields: [tenantId], references: [id])
+  patients             Patient[]
+  financialTransactions FinancialTransaction[]
+  notifications        Notification[]
+  subscription         Subscription?
+  auditLogsAsActor     AuditLog[]             @relation("AuditLogActor")
+
+  @@index([tenantId])
+  @@map("users")
+}
+
+model Patient {
+  id               String                @id @default(uuid())
+  tenantId         String                @map("tenant_id")
+  userId           String                @map("user_id")
+  fullName         String                @map("full_name")
+  age              Int?
+  phone            String
+  recurrenceType   PatientRecurrenceType @default(ONE_OFF) @map("recurrence_type")
+  pricePerSession  Decimal               @map("price_per_session") @db.Decimal(10, 2)
+  status           PatientStatus         @default(IN_EVALUATION)
+  consentGivenAt   DateTime?             @map("consent_given_at")
+  createdAt        DateTime              @default(now()) @map("created_at")
+  updatedAt        DateTime              @updatedAt @map("updated_at")
+  deletedAt        DateTime?             @map("deleted_at")
+
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  professional   User            @relation(fields: [userId], references: [id])
+  appointments   Appointment[]
+  sessionRecords SessionRecord[]
+  medicalRecords MedicalRecord[]
+
+  @@index([tenantId])
+  @@index([userId])
+  @@map("patients")
+}
+
+model Appointment {
+  id        String              @id @default(uuid())
+  patientId String              @map("patient_id")
+  dateTime  DateTime            @map("date_time")
+  modality  AppointmentModality @default(IN_PERSON)
+  status    AppointmentStatus   @default(SCHEDULED)
+  price     Decimal             @db.Decimal(10, 2)
+  seriesId  String?             @map("series_id") // agrupa ocorrências de uma recorrência (RF-04)
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+
+  patient       Patient        @relation(fields: [patientId], references: [id])
+  sessionRecord SessionRecord?
+
+  @@index([patientId])
+  @@index([dateTime])
+  @@map("appointments")
+}
+
+model SessionRecord {
+  id            String        @id @default(uuid())
+  appointmentId String        @unique @map("appointment_id")
+  patientId     String        @map("patient_id")
+  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
+  paymentMethod PaymentMethod? @map("payment_method")
+  date          DateTime
+  chargeSentAt  DateTime?     @map("charge_sent_at")
+  paidAt        DateTime?     @map("paid_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  appointment   Appointment    @relation(fields: [appointmentId], references: [id])
+  patient       Patient        @relation(fields: [patientId], references: [id])
+  notifications Notification[]
+
+  @@index([patientId])
+  @@index([paymentStatus])
+  @@map("session_records")
+}
+
+/// Evolução clínica. evolutionText e stepsText são criptografados (AES-256) em repouso (seção 11.1).
+/// Nunca sobrescrita: uma edição gera nova versão auditada (RF-05).
+model MedicalRecord {
+  id            String   @id @default(uuid())
+  patientId     String   @map("patient_id")
+  sessionNumber Int      @map("session_number")
+  evolutionText String   @map("evolution_text")
+  observations  String?
+  stepsText     String?  @map("steps_text")
+  version       Int      @default(1)
+  supersedesId  String?  @map("supersedes_id")
+  createdById   String   @map("created_by_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  patient     Patient      @relation(fields: [patientId], references: [id])
+  tags        MedicalRecordTag[]
+  attachments Attachment[]
+
+  @@index([patientId, sessionNumber])
+  @@map("medical_records")
+}
+
+model FinancialTransaction {
+  id        String                      @id @default(uuid())
+  userId    String                      @map("user_id")
+  type      FinancialTransactionType
+  scope     FinancialScope              @default(OFFICE)
+  category  String
+  amount    Decimal                     @db.Decimal(10, 2)
+  dueDate   DateTime                    @map("due_date")
+  status    FinancialTransactionStatus  @default(PENDING)
+  recurring Boolean                     @default(false)
+  createdAt DateTime                    @default(now()) @map("created_at")
+  updatedAt DateTime                    @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, dueDate])
+  @@map("financial_transactions")
+}
+
+// ---------------------------------------------------------------------------
+// Entidades de suporte (PRD 6.2)
+// ---------------------------------------------------------------------------
+
+model Subscription {
+  id               String             @id @default(uuid())
+  tenantId         String             @map("tenant_id")
+  userId           String             @unique @map("user_id")
+  planTier         PlanType           @map("plan_tier")
+  status           SubscriptionStatus @default(TRIALING)
+  currentPeriodEnd DateTime           @map("current_period_end")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
+  invoices Invoice[]
+
+  @@map("subscriptions")
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  subscriptionId String        @map("subscription_id")
+  amount         Decimal       @db.Decimal(10, 2)
+  dueDate        DateTime      @map("due_date")
+  status         InvoiceStatus @default(PENDING)
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+
+  @@index([subscriptionId])
+  @@map("invoices")
+}
+
+model Notification {
+  id              String              @id @default(uuid())
+  userId          String              @map("user_id")
+  sessionRecordId String?             @map("session_record_id")
+  channel         NotificationChannel
+  type            NotificationType
+  payload         Json
+  status          NotificationStatus  @default(QUEUED)
+  sentAt          DateTime?           @map("sent_at")
+  deliveredAt     DateTime?           @map("delivered_at")
+  createdAt       DateTime            @default(now()) @map("created_at")
+
+  user          User           @relation(fields: [userId], references: [id])
+  sessionRecord SessionRecord? @relation(fields: [sessionRecordId], references: [id])
+
+  @@index([userId])
+  @@index([sessionRecordId])
+  @@map("notifications")
+}
+
+/// Trilha imutável de alterações em prontuário e dados sensíveis (LGPD/CFP, seção 11.3).
+/// Append-only: nunca atualizada ou deletada fisicamente.
+model AuditLog {
+  id        String      @id @default(uuid())
+  tenantId  String      @map("tenant_id")
+  actorId   String      @map("actor_id")
+  entity    String
+  entityId  String      @map("entity_id")
+  action    AuditAction
+  diff      Json?
+  reason    String? // justificativa obrigatória em exportações (RF-06)
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  actor  User   @relation("AuditLogActor", fields: [actorId], references: [id])
+
+  @@index([tenantId, entity, entityId])
+  @@map("audit_logs")
+}
+
+model Tag {
+  id       String  @id @default(uuid())
+  tenantId String  @map("tenant_id")
+  name     String
+  category String?
+
+  tenant         Tenant             @relation(fields: [tenantId], references: [id])
+  medicalRecords MedicalRecordTag[]
+
+  @@unique([tenantId, name])
+  @@map("tags")
+}
+
+/// Tabela de junção N:N entre MedicalRecord e Tag (seção 6.3).
+model MedicalRecordTag {
+  medicalRecordId String @map("medical_record_id")
+  tagId           String @map("tag_id")
+
+  medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id])
+  tag           Tag           @relation(fields: [tagId], references: [id])
+
+  @@id([medicalRecordId, tagId])
+  @@map("medical_record_tags")
+}
+
+model Attachment {
+  id              String   @id @default(uuid())
+  medicalRecordId String   @map("medical_record_id")
+  fileUrl         String   @map("file_url")
+  mimeType        String   @map("mime_type")
+  checksum        String
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id])
+
+  @@index([medicalRecordId])
+  @@map("attachments")
+}
