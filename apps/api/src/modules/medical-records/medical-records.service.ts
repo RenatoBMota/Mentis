@@ -1,21 +1,29 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
+import { MedicalRecord } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TenantContext } from '../../common/tenant/tenant-context';
+import { CryptoService } from '../../common/crypto/crypto.service';
 import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
 
 /**
- * TODO(seção 11.1): evolutionText/stepsText devem ser criptografados com
- * AES-256 em repouso antes de persistir (ex.: envelope encryption via KMS +
- * pgcrypto, ou criptografia a nível de aplicação no PrismaService). Ainda não
- * implementado neste scaffold inicial — não armazenar dados reais de pacientes
- * até essa etapa ser concluída.
+ * evolutionText/stepsText são criptografados com AES-256-GCM em repouso
+ * (PRD 11.1) via CryptoService; nunca chegam em texto plano ao banco.
  */
 @Injectable()
 export class MedicalRecordsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tenantContext: TenantContext,
+    private readonly crypto: CryptoService,
   ) {}
+
+  private decryptRecord<T extends MedicalRecord>(record: T): T {
+    return {
+      ...record,
+      evolutionText: this.crypto.decrypt(record.evolutionText),
+      stepsText: this.crypto.decryptOptional(record.stepsText) ?? null,
+    };
+  }
 
   /** GET /v1/medical-records/:patientId — linha do tempo de evolução. */
   async findByPatient(patientId: string) {
@@ -24,7 +32,7 @@ export class MedicalRecordsService {
       include: { tags: { include: { tag: true } } },
       orderBy: { sessionNumber: 'asc' },
     });
-    return { data: records };
+    return { data: records.map((record) => this.decryptRecord(record)) };
   }
 
   /**
@@ -45,9 +53,9 @@ export class MedicalRecordsService {
         data: {
           patientId,
           sessionNumber: dto.sessionNumber,
-          evolutionText: dto.evolutionText,
+          evolutionText: this.crypto.encrypt(dto.evolutionText),
           observations: dto.observations,
-          stepsText: dto.stepsText,
+          stepsText: this.crypto.encryptOptional(dto.stepsText),
           createdById: userId,
           version: (previousVersion?.version ?? 0) + 1,
           supersedesId: previousVersion?.id,
@@ -67,7 +75,7 @@ export class MedicalRecordsService {
       return created;
     });
 
-    return { data: record };
+    return { data: this.decryptRecord(record) };
   }
 
   /** POST /v1/medical-records/:patientId/export-pdf — RF-06. */
