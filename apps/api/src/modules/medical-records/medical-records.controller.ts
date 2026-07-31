@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Res, StreamableFile, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiProduces, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
+import type { Response } from 'express';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -27,8 +28,18 @@ export class MedicalRecordsController {
     return this.medicalRecordsService.create(patientId, dto);
   }
 
+  @ApiProduces('application/pdf')
   @Post(':patientId/export-pdf')
-  exportPdf(@Param('patientId') patientId: string, @Body() dto: ExportMedicalRecordDto) {
-    return this.medicalRecordsService.exportPdf(patientId, dto.reason);
+  async exportPdf(
+    @Param('patientId') patientId: string,
+    @Body() dto: ExportMedicalRecordDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
+    const { filename, buffer } = await this.medicalRecordsService.exportPdf(patientId, dto.reason);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="${filename}"`,
+    });
+    return new StreamableFile(buffer);
   }
 }
