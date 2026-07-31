@@ -69,7 +69,7 @@ export function NewAppointmentDialog({ open, onOpenChange, initialDateTime }: Ne
         <DialogHeader>
           <DialogTitle>Novo agendamento</DialogTitle>
           {initialDateTime && (
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-ink-muted">
               {initialDateTime.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })}
               {' às '}
               {initialDateTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}

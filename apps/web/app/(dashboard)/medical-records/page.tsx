@@ -59,13 +59,13 @@ function MedicalRecordsContent() {
       </div>
 
       {!patientId && (
-        <p className="text-sm text-slate-500">Selecione um paciente para ver o histórico de evolução.</p>
+        <p className="text-sm text-ink-faint">Selecione um paciente para ver o histórico de evolução.</p>
       )}
 
       {patientId && recordsQuery.isLoading && <div className="skeleton h-40" />}
 
       {patientId && !recordsQuery.isLoading && records.length === 0 && (
-        <p className="text-sm text-slate-500">Nenhuma evolução registrada ainda.</p>
+        <p className="text-sm text-ink-faint">Nenhuma evolução registrada ainda.</p>
       )}
 
       <div className="flex flex-col gap-4">
@@ -73,21 +73,21 @@ function MedicalRecordsContent() {
           <Card key={record.id}>
             <CardContent className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-semibold text-slate-50">Sessão nº {record.sessionNumber}</h3>
-                <span className="text-xs text-slate-500">
+                <h3 className="text-base font-semibold text-ink">Sessão nº {record.sessionNumber}</h3>
+                <span className="text-xs text-ink-faint">
                   {new Date(record.createdAt).toLocaleString('pt-BR')}
                 </span>
               </div>
-              <p className="text-sm text-slate-300">{record.evolutionText}</p>
+              <p className="text-sm text-ink-muted">{record.evolutionText}</p>
               {record.observations && (
-                <p className="text-sm text-slate-400">
-                  <span className="font-medium text-slate-300">Observações: </span>
+                <p className="text-sm text-ink-muted">
+                  <span className="font-medium text-ink-muted">Observações: </span>
                   {record.observations}
                 </p>
               )}
               {record.stepsText && (
-                <p className="text-sm text-slate-400">
-                  <span className="font-medium text-slate-300">Próximos passos: </span>
+                <p className="text-sm text-ink-muted">
+                  <span className="font-medium text-ink-muted">Próximos passos: </span>
                   {record.stepsText}
                 </p>
               )}
@@ -96,7 +96,7 @@ function MedicalRecordsContent() {
                   {record.tags.map((tag) => (
                     <span
                       key={tag.id}
-                      className="rounded-full border border-white/15 px-2 py-0.5 text-xs text-slate-400"
+                      className="rounded-full border border-border px-2 py-0.5 text-xs text-ink-muted"
                     >
                       {tag.name}
                     </span>

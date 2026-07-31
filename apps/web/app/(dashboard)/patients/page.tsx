@@ -72,7 +72,7 @@ export default function PatientsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-50">Pacientes</h1>
+        <h1 className="text-xl font-bold text-ink">Pacientes</h1>
         <NewPatientDialog />
       </div>
 
@@ -82,7 +82,7 @@ export default function PatientsPage() {
             <CardTitle>Ativos</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-slate-50">{metrics.active}</p>
+            <p className="text-2xl font-bold text-ink">{metrics.active}</p>
           </CardContent>
         </Card>
         <Card>
@@ -90,7 +90,7 @@ export default function PatientsPage() {
             <CardTitle>Em Avaliação</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-slate-50">{metrics.inEvaluation}</p>
+            <p className="text-2xl font-bold text-ink">{metrics.inEvaluation}</p>
           </CardContent>
         </Card>
         <Card>
@@ -98,7 +98,7 @@ export default function PatientsPage() {
             <CardTitle>Ticket Médio</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-slate-50">{currency.format(metrics.avgTicket)}</p>
+            <p className="text-2xl font-bold text-ink">{currency.format(metrics.avgTicket)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -106,7 +106,7 @@ export default function PatientsPage() {
             <CardTitle>Total Geral</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-slate-50">{metrics.total}</p>
+            <p className="text-2xl font-bold text-ink">{metrics.total}</p>
           </CardContent>
         </Card>
       </div>
@@ -118,10 +118,10 @@ export default function PatientsPage() {
               key={filter.label}
               onClick={() => setStatusFilter(filter.value)}
               className={cn(
-                'rounded-full border px-3 py-1 text-xs font-medium text-slate-300 hover:text-slate-50',
+                'rounded-full border px-3 py-1 text-xs font-medium text-ink-muted hover:text-ink',
                 statusFilter === filter.value
-                  ? 'border-accent-highlight bg-accent-highlight/10 text-accent-highlight'
-                  : 'border-white/15',
+                  ? 'border-accent-primary bg-accent-soft text-accent-strong'
+                  : 'border-border',
               )}
             >
               {filter.label}
@@ -129,7 +129,7 @@ export default function PatientsPage() {
           ))}
         </div>
         <div className="relative w-full sm:w-64">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint" />
           <Input
             placeholder="Buscar por nome…"
             value={search}
@@ -144,14 +144,14 @@ export default function PatientsPage() {
           Array.from({ length: 3 }).map((_, i) => <div key={i} className="skeleton h-40" />)}
 
         {!patientsQuery.isLoading && patients.length === 0 && (
-          <p className="col-span-full text-sm text-slate-500">Nenhum paciente encontrado.</p>
+          <p className="col-span-full text-sm text-ink-faint">Nenhum paciente encontrado.</p>
         )}
 
         {patients.map((patient) => (
           <Card key={patient.id}>
             <CardHeader>
               <div className="flex items-start justify-between">
-                <CardTitle className="text-base font-semibold text-slate-50">{patient.fullName}</CardTitle>
+                <CardTitle className="text-base font-semibold text-ink">{patient.fullName}</CardTitle>
                 <Badge
                   tone={
                     patient.status === 'ACTIVE'
@@ -169,10 +169,10 @@ export default function PatientsPage() {
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="flex flex-col gap-2 text-sm text-slate-400">
+            <CardContent className="flex flex-col gap-2 text-sm text-ink-muted">
               {patient.age && <p>{patient.age} anos</p>}
               <p>{RECURRENCE_LABELS[patient.recurrenceType]}</p>
-              <p className="font-medium text-slate-200">{currency.format(Number(patient.pricePerSession))}</p>
+              <p className="font-medium text-ink">{currency.format(Number(patient.pricePerSession))}</p>
               <div className="mt-3 flex gap-2">
                 <Button variant="outline" size="sm" asChild>
                   <Link href={`/medical-records?patientId=${patient.id}`}>

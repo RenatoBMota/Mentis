@@ -19,7 +19,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   if (token === undefined || token === null) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <Loader2 className="animate-spin text-slate-500" size={24} />
+        <Loader2 className="animate-spin text-ink-faint" size={24} />
       </div>
     );
   }

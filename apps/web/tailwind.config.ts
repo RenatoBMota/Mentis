@@ -7,18 +7,30 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        ground: designTokens.ground,
         surface: {
           base: designTokens.surface.base,
           raised: designTokens.surface.raised,
         },
+        border: designTokens.border,
+        ink: {
+          DEFAULT: designTokens.ink.DEFAULT,
+          muted: designTokens.ink.muted,
+          faint: designTokens.ink.faint,
+        },
         accent: {
           primary: designTokens.accent.primary,
-          highlight: designTokens.accent.highlight,
+          strong: designTokens.accent.strong,
+          soft: designTokens.accent.soft,
+          ink: designTokens.accent.ink,
         },
         status: {
           success: designTokens.status.success,
+          'success-soft': designTokens.status.successSoft,
           warning: designTokens.status.warning,
+          'warning-soft': designTokens.status.warningSoft,
           danger: designTokens.status.danger,
+          'danger-soft': designTokens.status.dangerSoft,
         },
       },
       borderRadius: {
@@ -30,7 +42,8 @@ const config: Config = {
         grid: '8px',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-body)', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-display)', 'Georgia', 'serif'],
       },
     },
   },
