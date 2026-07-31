@@ -28,10 +28,10 @@ Ordem de desenvolvimento recomendada (ver seção 5.1 do PRD):
 | 02 | Autenticação (Auth Service) | Concluído |
 | 03 | Permissões (RBAC & Multi-Tenancy) | Concluído |
 | 04 | Pipeline de Vendas & Financeiro | Concluído |
-| 05 | Histórico de Atividades & Prontuários | Concluído (exportação de PDF ainda pendente) |
+| 05 | Histórico de Atividades & Prontuários | Concluído |
 | 06 | API RESTful (OpenAPI 3.1) | Em andamento (Swagger em `/docs`; testes de contrato pendentes) |
-| 07 | Front-End (Dashboard & Interfaces) | Em andamento (login + dashboard; demais telas pendentes) |
-| 08 | Workflows & Automações (WhatsApp) | Em andamento (gateway abstraído em dry-run; filas BullMQ pendentes) |
+| 07 | Front-End (Dashboard & Interfaces) | Concluído (login, dashboard, agenda, pacientes, financeiro, prontuário) |
+| 08 | Workflows & Automações (WhatsApp) | Em andamento (lembrete 48h e lançamentos recorrentes via BullMQ; integração real com Evolution API/Z-API em dry-run) |
 | 09 | Agentes de IA (Fase Futura) | Backlog |
 
 ### Multi-tenancy

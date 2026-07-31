@@ -36,9 +36,14 @@ export class MedicalRecordsController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
     const { filename, buffer } = await this.medicalRecordsService.exportPdf(patientId, dto.reason);
+    // Content-Disposition só aceita Latin-1/ASCII no parâmetro `filename`;
+    // nomes com acento (ex.: "João") quebram o header sem isso — RFC 6266
+    // usa `filename*` (UTF-8 percent-encoded) para o valor real, com um
+    // fallback ASCII (acentos removidos) em `filename` para clientes antigos.
+    const asciiFilename = filename.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     res.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Content-Disposition': `attachment; filename="${asciiFilename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
     });
     return new StreamableFile(buffer);
   }
