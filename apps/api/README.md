@@ -40,7 +40,6 @@ pnpm dev
 
 ## Pendências conhecidas deste scaffold inicial
 
-- **Criptografia em repouso (PRD 11.1)**: `MedicalRecord.evolutionText`/`stepsText` ainda não são criptografados (AES-256) antes de persistir — não usar com dados reais de pacientes até essa etapa ser implementada.
 - **RLS**: políticas em `prisma/sql/rls_policies.sql` precisam ser aplicadas manualmente após a primeira migração; o isolamento hoje depende apenas do filtro `tenant_id`/`userId` na camada de aplicação (`TenantContext`).
 - **Filas (BullMQ/Redis)**: lembretes de cobrança em 48h (RF-07) e lançamentos recorrentes (RF-10) têm a lógica de domínio pronta, mas ainda não são agendados via job — TODOs marcados no código.
 - **Exportação de PDF** (RF-06) e **geração de relatórios XLS** (RF-11) ainda não implementadas — endpoints registram a intenção/auditoria e retornam `501`.

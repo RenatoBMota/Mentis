@@ -3,6 +3,7 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { PrismaModule } from './prisma/prisma.module';
+import { CryptoModule } from './common/crypto/crypto.module';
 import { TenantContext } from './common/tenant/tenant-context';
 import { TenantContextInterceptor } from './common/tenant/tenant-context.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
@@ -22,6 +23,7 @@ import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
     // Endpoints de WhatsApp aplicam limite mais restrito via @Throttle no controller.
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     PrismaModule,
+    CryptoModule,
     AuthModule,
     PatientsModule,
     AgendaModule,
