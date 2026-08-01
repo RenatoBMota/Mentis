@@ -4,24 +4,34 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
-import { usePatient } from '@/lib/hooks/use-patients';
+import { usePatient, useUpdatePatientStatus } from '@/lib/hooks/use-patients';
 import { usePatientTimeline } from '@/lib/hooks/use-patient-timeline';
 import { openReferralPdf } from '@/lib/hooks/use-referrals';
 import { useAuthToken } from '@/lib/use-auth-token';
 import { currency, RECURRENCE_LABELS } from '@/lib/patient-format';
+import { cn } from '@/lib/utils';
+import { PatientStatus } from '@/lib/types';
 import { ClinicalInfoPanel } from '../../medical-records/clinical-info-panel';
 import { AssessmentPanel } from '../../medical-records/assessment-panel';
 import { LibraryPanel } from '../../medical-records/library-panel';
 import { Timeline } from '../../medical-records/timeline';
 
-const STATUS_LABELS = {
-  ACTIVE: { label: 'Ativo', tone: 'success' as const },
-  IN_EVALUATION: { label: 'Em Avaliação', tone: 'warning' as const },
-  INACTIVE: { label: 'Inativo', tone: 'neutral' as const },
+const STATUS_LABELS: Record<PatientStatus, string> = {
+  ACTIVE: 'Ativo',
+  IN_EVALUATION: 'Em Avaliação',
+  INACTIVE: 'Inativo',
 };
+
+const STATUS_SELECT_CLASSES: Record<PatientStatus, string> = {
+  ACTIVE: 'border-status-success/40 bg-status-success-soft text-status-success',
+  IN_EVALUATION: 'border-status-warning/40 bg-status-warning-soft text-status-warning',
+  INACTIVE: 'border-border bg-surface-raised text-ink-muted',
+};
+
+const STATUS_OPTIONS: PatientStatus[] = ['ACTIVE', 'IN_EVALUATION', 'INACTIVE'];
 
 /** Visão Geral do Paciente: centraliza sessões, encaminhamentos e avaliações num único histórico. */
 export default function PatientProfilePage() {
@@ -35,6 +45,16 @@ export default function PatientProfilePage() {
 
   const token = useAuthToken();
   const { toast } = useToast();
+  const updateStatus = useUpdatePatientStatus(patientId);
+
+  async function handleStatusChange(status: PatientStatus) {
+    try {
+      await updateStatus.mutateAsync(status);
+      toast(`Status atualizado para "${STATUS_LABELS[status]}".`, 'success');
+    } catch {
+      toast('Não foi possível atualizar o status. Tente novamente.', 'error');
+    }
+  }
 
   async function handlePrintReferral(id: string) {
     if (!token) return;
@@ -69,7 +89,21 @@ export default function PatientProfilePage() {
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-3">
                 <h1 className="text-xl font-bold text-ink">{patient.fullName}</h1>
-                <Badge tone={STATUS_LABELS[patient.status].tone}>{STATUS_LABELS[patient.status].label}</Badge>
+                <Select
+                  value={patient.status}
+                  disabled={updateStatus.isPending}
+                  onChange={(e) => handleStatusChange(e.target.value as PatientStatus)}
+                  className={cn(
+                    'h-7 w-auto py-0 pl-2.5 pr-7 text-xs font-medium',
+                    STATUS_SELECT_CLASSES[patient.status],
+                  )}
+                >
+                  {STATUS_OPTIONS.map((status) => (
+                    <option key={status} value={status}>
+                      {STATUS_LABELS[status]}
+                    </option>
+                  ))}
+                </Select>
               </div>
               <p className="text-sm text-ink-muted">
                 {patient.age ? `${patient.age} anos · ` : ''}

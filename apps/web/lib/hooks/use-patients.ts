@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api-client';
 import { useAuthToken } from '@/lib/use-auth-token';
-import { Patient, PatientRecurrenceType } from '@/lib/types';
+import { Patient, PatientRecurrenceType, PatientStatus } from '@/lib/types';
 
 interface PatientsQuery {
   search?: string;
@@ -50,6 +50,24 @@ export function useUpdatePatientClinicalInfo(patientId: string | null) {
       apiFetch<Patient>(`/patients/${patientId}`, {
         method: 'PATCH',
         body: JSON.stringify(input),
+        token: token!,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patient', patientId] });
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
+    },
+  });
+}
+
+export function useUpdatePatientStatus(patientId: string | null) {
+  const token = useAuthToken();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (status: PatientStatus) =>
+      apiFetch<Patient>(`/patients/${patientId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
         token: token!,
       }),
     onSuccess: () => {
