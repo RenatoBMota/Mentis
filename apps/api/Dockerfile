@@ -23,6 +23,7 @@ RUN corepack enable
 ENV NODE_ENV=production
 
 COPY --from=build /repo /repo
+RUN mkdir -p /repo/apps/api/uploads
 RUN addgroup -S app && adduser -S app -G app && chown -R app:app /repo
 USER app
 
