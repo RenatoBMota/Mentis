@@ -6,6 +6,7 @@
   "engines": {
     "node": ">=20"
   },
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "pnpm --parallel --filter ./apps/* dev",
     "dev:api": "pnpm --filter @mentis/api dev",
