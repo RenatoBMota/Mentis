@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { IsDateString } from 'class-validator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AgendaService } from './agenda.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
 class WeeklyQueryDto {
   @IsDateString()
@@ -25,5 +26,15 @@ export class AgendaController {
   @Post('appointments')
   create(@Body() dto: CreateAppointmentDto) {
     return this.agendaService.create(dto);
+  }
+
+  @Patch('appointments/:id')
+  update(@Param('id') id: string, @Body() dto: UpdateAppointmentDto) {
+    return this.agendaService.update(id, dto);
+  }
+
+  @Patch('appointments/:id/cancel')
+  cancel(@Param('id') id: string) {
+    return this.agendaService.cancel(id);
   }
 }

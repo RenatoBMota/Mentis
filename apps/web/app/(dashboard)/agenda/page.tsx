@@ -8,6 +8,7 @@ import { useWeeklyAgenda } from '@/lib/hooks/use-agenda';
 import { addDays, AGENDA_HOURS, getWeekStart, WEEKDAY_LABELS } from '@/lib/week';
 import { Appointment, AppointmentStatus } from '@/lib/types';
 import { NewAppointmentDialog } from './new-appointment-dialog';
+import { ManageAppointmentDialog } from './manage-appointment-dialog';
 
 const STATUS_CLASSES: Record<AppointmentStatus, string> = {
   SCHEDULED: 'bg-accent-soft border-accent-primary/30 text-accent-strong',
@@ -22,6 +23,7 @@ export default function AgendaPage() {
   const [weekStart, setWeekStart] = useState(() => getWeekStart(new Date()));
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
+  const [managedAppointment, setManagedAppointment] = useState<Appointment | null>(null);
 
   const agendaQuery = useWeeklyAgenda(weekStart);
   const appointments = useMemo(() => agendaQuery.data?.data ?? [], [agendaQuery.data]);
@@ -103,11 +105,12 @@ export default function AgendaPage() {
                 return (
                   <button
                     key={i}
-                    onClick={() => !appointment && handleSlotClick(day, hour)}
-                    disabled={Boolean(appointment)}
+                    onClick={() =>
+                      appointment ? setManagedAppointment(appointment) : handleSlotClick(day, hour)
+                    }
                     className={cn(
                       'min-h-14 border-b border-l border-border p-1 text-left transition-colors',
-                      !appointment && 'hover:bg-surface-raised',
+                      'hover:bg-surface-raised',
                     )}
                   >
                     {appointment && (
@@ -153,6 +156,10 @@ export default function AgendaPage() {
       </div>
 
       <NewAppointmentDialog open={dialogOpen} onOpenChange={setDialogOpen} initialDateTime={selectedSlot} />
+      <ManageAppointmentDialog
+        appointment={managedAppointment}
+        onOpenChange={(open) => !open && setManagedAppointment(null)}
+      />
     </div>
   );
 }

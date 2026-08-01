@@ -53,6 +53,17 @@ export function useCompleteAppointment() {
   });
 }
 
+export function useMarkNoShow() {
+  const token = useAuthToken();
+  const invalidate = useInvalidateSessions();
+
+  return useMutation({
+    mutationFn: (appointmentId: string) =>
+      apiFetch(`/sessions/${appointmentId}/no-show`, { method: 'PATCH', token: token! }),
+    onSuccess: invalidate,
+  });
+}
+
 export function useSendChargeLink() {
   const token = useAuthToken();
   const invalidate = useInvalidateSessions();

@@ -7,7 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { useSessions, useCompleteAppointment, useSendChargeLink, useMarkSessionPaid } from '@/lib/hooks/use-sessions';
+import {
+  useSessions,
+  useCompleteAppointment,
+  useMarkNoShow,
+  useSendChargeLink,
+  useMarkSessionPaid,
+} from '@/lib/hooks/use-sessions';
 import { usePatients } from '@/lib/hooks/use-patients';
 import { AppointmentStatus } from '@/lib/types';
 
@@ -36,6 +42,7 @@ export default function SessionsPage() {
   const sessionsQuery = useSessions({ status: statusFilter, patientId: patientId || undefined });
   const patientsQuery = usePatients();
   const completeAppointment = useCompleteAppointment();
+  const markNoShow = useMarkNoShow();
   const sendChargeLink = useSendChargeLink();
   const markPaid = useMarkSessionPaid();
 
@@ -157,14 +164,24 @@ export default function SessionsPage() {
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1.5">
                           {needsCompletion && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              disabled={completeAppointment.isPending}
-                              onClick={() => completeAppointment.mutate(row.id)}
-                            >
-                              Marcar como realizada
-                            </Button>
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={completeAppointment.isPending}
+                                onClick={() => completeAppointment.mutate(row.id)}
+                              >
+                                Marcar como realizada
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                disabled={markNoShow.isPending}
+                                onClick={() => markNoShow.mutate(row.id)}
+                              >
+                                Marcar falta
+                              </Button>
+                            </>
                           )}
                           {row.sessionRecord && row.sessionRecord.paymentStatus !== 'PAID' && (
                             <>

@@ -82,4 +82,19 @@ export class SessionsService {
 
     return { data: { appointment: updatedAppointment, sessionRecord } };
   }
+
+  /** PATCH /v1/sessions/:appointmentId/no-show — paciente não compareceu. */
+  async noShow(appointmentId: string) {
+    const appointment = await this.prisma.appointment.findUnique({ where: { id: appointmentId } });
+    if (!appointment) {
+      throw new NotFoundException('APPOINTMENT_NOT_FOUND');
+    }
+
+    const updated = await this.prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { status: 'NO_SHOW' },
+    });
+
+    return { data: { appointment: updated } };
+  }
 }
