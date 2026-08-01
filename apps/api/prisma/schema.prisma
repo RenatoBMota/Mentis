@@ -426,9 +426,15 @@ model Referral {
 enum AssessmentType {
   PHQ9
   GAD7
+  EPDS
+  SRQ20
+  AUDIT
+  PSS10
+  WHO5
 }
 
-/// Avaliação psicológica padronizada (PHQ-9, GAD-7). answers é criptografado
+/// Avaliação psicológica padronizada (PHQ-9, GAD-7, EPDS, SRQ-20, AUDIT,
+/// PSS-10, WHO-5). answers é criptografado
 /// (AES-256) — as respostas individuais são PHI. totalScore fica em claro:
 /// já é um agregado (não expõe respostas item a item) e permite consultar o
 /// histórico/gráfico de tendência sem descriptografar cada registro.

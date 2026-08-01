@@ -15,20 +15,20 @@ import { Select } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 import {
-  ANSWER_OPTIONS,
+  ASSESSMENT_INTRO,
   ASSESSMENT_LABELS,
   ASSESSMENT_QUESTIONS,
   AssessmentType,
 } from '@/lib/assessments';
 import { useCreateAssessment } from '@/lib/hooks/use-assessments';
 
-const TYPES: AssessmentType[] = ['PHQ9', 'GAD7'];
+const TYPES: AssessmentType[] = ['PHQ9', 'GAD7', 'EPDS', 'SRQ20', 'AUDIT', 'PSS10', 'WHO5'];
 
 interface NewAssessmentDialogProps {
   patientId: string;
 }
 
-/** Aplicação de escalas psicológicas validadas (PHQ-9, GAD-7) direto no prontuário. */
+/** Aplicação de escalas psicológicas validadas direto no prontuário. */
 export function NewAssessmentDialog({ patientId }: NewAssessmentDialogProps) {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<AssessmentType>('PHQ9');
@@ -71,7 +71,7 @@ export function NewAssessmentDialog({ patientId }: NewAssessmentDialogProps) {
       setOpen(false);
       const { totalScore, severity, clinicalAlert } = result.data;
       toast(
-        `${ASSESSMENT_LABELS[type]} salva — pontuação ${totalScore}, severidade: ${severity}.`,
+        `${ASSESSMENT_LABELS[type]} salva — pontuação ${totalScore}, resultado: ${severity}.`,
         clinicalAlert ? 'error' : 'success',
       );
     } catch {
@@ -109,19 +109,17 @@ export function NewAssessmentDialog({ patientId }: NewAssessmentDialogProps) {
             </Select>
           </div>
 
-          <p className="text-xs text-ink-faint">
-            Nas últimas 2 semanas, com que frequência você foi incomodado(a) pelos problemas abaixo?
-          </p>
+          <p className="text-xs text-ink-faint">{ASSESSMENT_INTRO[type]}</p>
 
           <div className="flex flex-col gap-4">
             {questions.map((question, index) => (
               <div key={index} className="flex flex-col gap-2 border-b border-border pb-4 last:border-b-0">
                 <p className="text-sm text-ink">
                   <span className="text-ink-faint">{index + 1}. </span>
-                  {question}
+                  {question.text}
                 </p>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {ANSWER_OPTIONS.map((option) => (
+                <div className="flex flex-wrap gap-2">
+                  {question.options.map((option) => (
                     <button
                       key={option.value}
                       type="button"

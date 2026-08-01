@@ -91,10 +91,11 @@ export interface Referral {
 export interface Assessment {
   id: string;
   patientId: string;
-  type: 'PHQ9' | 'GAD7';
+  type: 'PHQ9' | 'GAD7' | 'EPDS' | 'SRQ20' | 'AUDIT' | 'PSS10' | 'WHO5';
   answers: number[];
   totalScore: number;
   severity: string;
+  severityTone: 'success' | 'warning' | 'danger';
   clinicalAlert: boolean;
   createdAt: string;
 }
