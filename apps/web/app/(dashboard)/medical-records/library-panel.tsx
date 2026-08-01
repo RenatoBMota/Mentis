@@ -109,12 +109,13 @@ export function LibraryPanel({ patientId }: LibraryPanelProps) {
                           </div>
                         </div>
                         <div className="flex shrink-0 gap-1">
-                          <Button variant="ghost" size="sm" onClick={() => handleDownload(doc)}>
+                          <Button variant="ghost" size="sm" title="Baixar" onClick={() => handleDownload(doc)}>
                             <Download size={14} />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
+                            title="Remover"
                             onClick={() => setPendingDelete(doc)}
                             className="text-status-danger hover:bg-status-danger/10"
                           >

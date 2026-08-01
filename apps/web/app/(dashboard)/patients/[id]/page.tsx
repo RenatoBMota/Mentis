@@ -14,6 +14,7 @@ import { useAuthToken } from '@/lib/use-auth-token';
 import { currency, RECURRENCE_LABELS } from '@/lib/patient-format';
 import { ClinicalInfoPanel } from '../../medical-records/clinical-info-panel';
 import { AssessmentPanel } from '../../medical-records/assessment-panel';
+import { LibraryPanel } from '../../medical-records/library-panel';
 import { Timeline } from '../../medical-records/timeline';
 
 const STATUS_LABELS = {
@@ -126,6 +127,8 @@ export default function PatientProfilePage() {
           <ClinicalInfoPanel patient={patient} />
 
           <AssessmentPanel patientId={patientId} />
+
+          <LibraryPanel patientId={patientId} />
 
           <Card>
             <CardHeader>
