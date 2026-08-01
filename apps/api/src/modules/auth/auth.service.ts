@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { PrismaService } from '../../prisma/prisma.service';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOGIN_ATTEMPTS_WINDOW_MINUTES = 10;
@@ -133,6 +134,44 @@ export class AuthService {
       throw new NotFoundException('USER_NOT_FOUND');
     }
     return { data: user };
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: dto.name,
+        crp: dto.crp,
+        phone: dto.phone,
+        pixKey: dto.pixKey,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        crp: true,
+        phone: true,
+        pixKey: true,
+        role: true,
+        planType: true,
+      },
+    });
+    return { data: user };
+  }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('USER_NOT_FOUND');
+    }
+
+    const currentValid = await argon2.verify(user.passwordHash, currentPassword);
+    if (!currentValid) {
+      throw new UnauthorizedException('INVALID_CURRENT_PASSWORD');
+    }
+
+    const passwordHash = await AuthService.hashPassword(newPassword);
+    await this.prisma.user.update({ where: { id: userId }, data: { passwordHash } });
   }
 
   static async hashPassword(plain: string): Promise<string> {
