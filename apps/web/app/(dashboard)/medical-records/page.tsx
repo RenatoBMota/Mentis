@@ -8,13 +8,14 @@ import { Select } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
-import { usePatients } from '@/lib/hooks/use-patients';
+import { usePatient, usePatients } from '@/lib/hooks/use-patients';
 import { useMedicalRecords } from '@/lib/hooks/use-medical-records';
 import { openReferralPdf, useReferrals } from '@/lib/hooks/use-referrals';
 import { useAuthToken } from '@/lib/use-auth-token';
 import { NewEvolutionDialog } from './new-evolution-dialog';
 import { ExportPdfDialog } from './export-pdf-dialog';
 import { NewReferralDialog } from './new-referral-dialog';
+import { ClinicalInfoPanel } from './clinical-info-panel';
 
 /** Prontuário Clínico & Evolução (PRD 9.6). */
 function MedicalRecordsContent() {
@@ -39,6 +40,9 @@ function MedicalRecordsContent() {
 
   const referralsQuery = useReferrals(patientId);
   const referrals = useMemo(() => referralsQuery.data?.data ?? [], [referralsQuery.data]);
+
+  const patientQuery = usePatient(patientId);
+  const patient = patientQuery.data;
 
   const token = useAuthToken();
   const { toast } = useToast();
@@ -108,6 +112,8 @@ function MedicalRecordsContent() {
       {!patientId && (
         <p className="text-sm text-ink-faint">Selecione um paciente para ver o histórico de evolução.</p>
       )}
+
+      {patient && <ClinicalInfoPanel patient={patient} />}
 
       {patientId && loading && <div className="skeleton h-40" />}
 

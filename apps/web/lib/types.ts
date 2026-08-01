@@ -10,6 +10,8 @@ export interface Patient {
   pricePerSession: string;
   status: PatientStatus;
   createdAt: string;
+  anamnesis?: string | null;
+  treatmentPlan?: string | null;
 }
 
 export type AppointmentModality = 'IN_PERSON' | 'ONLINE';
