@@ -77,6 +77,15 @@ export interface MedicalRecord {
   tags: Tag[];
 }
 
+export interface Referral {
+  id: string;
+  patientId: string;
+  type: string;
+  recipient: string | null;
+  content: string;
+  createdAt: string;
+}
+
 export interface UserProfile {
   id: string;
   name: string;
