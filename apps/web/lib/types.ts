@@ -88,6 +88,17 @@ export interface Referral {
   createdAt: string;
 }
 
+export interface Assessment {
+  id: string;
+  patientId: string;
+  type: 'PHQ9' | 'GAD7';
+  answers: number[];
+  totalScore: number;
+  severity: string;
+  clinicalAlert: boolean;
+  createdAt: string;
+}
+
 export interface UserProfile {
   id: string;
   name: string;

@@ -16,6 +16,7 @@ import { NewEvolutionDialog } from './new-evolution-dialog';
 import { ExportPdfDialog } from './export-pdf-dialog';
 import { NewReferralDialog } from './new-referral-dialog';
 import { ClinicalInfoPanel } from './clinical-info-panel';
+import { AssessmentPanel } from './assessment-panel';
 
 /** Prontuário Clínico & Evolução (PRD 9.6). */
 function MedicalRecordsContent() {
@@ -114,6 +115,8 @@ function MedicalRecordsContent() {
       )}
 
       {patient && <ClinicalInfoPanel patient={patient} />}
+
+      {patientId && <AssessmentPanel patientId={patientId} />}
 
       {patientId && loading && <div className="skeleton h-40" />}
 
