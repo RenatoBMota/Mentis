@@ -60,4 +60,16 @@ const DialogTitle = React.forwardRef<
 ));
 DialogTitle.displayName = DialogPrimitive.Title.displayName;
 
-export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle };
+const DialogDescription = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Description>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
+>(({ className, ...props }, ref) => (
+  <DialogPrimitive.Description ref={ref} className={cn('text-sm text-ink-muted', className)} {...props} />
+));
+DialogDescription.displayName = DialogPrimitive.Description.displayName;
+
+const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('mt-2 flex justify-end gap-2', className)} {...props} />
+);
+
+export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter };

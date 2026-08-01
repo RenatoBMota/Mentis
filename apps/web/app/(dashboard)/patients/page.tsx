@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 import { usePatients } from '@/lib/hooks/use-patients';
 import { useAuthToken } from '@/lib/use-auth-token';
@@ -46,7 +48,9 @@ function useDeletePatient() {
 export default function PatientsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<PatientStatus | undefined>(undefined);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
   const debouncedSearch = useDebouncedValue(search, 300);
+  const { toast } = useToast();
 
   const patientsQuery = usePatients({ search: debouncedSearch || undefined, status: statusFilter });
   const deletePatient = useDeletePatient();
@@ -63,10 +67,17 @@ export default function PatientsPage() {
     return { active, inEvaluation, avgTicket, total: patients.length };
   }, [patients]);
 
-  function handleDelete(id: string, name: string) {
-    if (window.confirm(`Excluir o cadastro de ${name}? Essa ação não pode ser desfeita.`)) {
-      deletePatient.mutate(id);
-    }
+  function handleConfirmDelete() {
+    if (!pendingDelete) return;
+    deletePatient.mutate(pendingDelete.id, {
+      onSuccess: () => {
+        toast(`${pendingDelete.name} foi removido(a) dos seus pacientes.`, 'success');
+        setPendingDelete(null);
+      },
+      onError: () => {
+        toast('Não foi possível excluir o paciente. Tente novamente.', 'error');
+      },
+    });
   }
 
   return (
@@ -183,7 +194,7 @@ export default function PatientsPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleDelete(patient.id, patient.fullName)}
+                  onClick={() => setPendingDelete({ id: patient.id, name: patient.fullName })}
                   className="text-status-danger hover:bg-status-danger/10"
                 >
                   <Trash2 size={14} />
@@ -193,6 +204,21 @@ export default function PatientsPage() {
           </Card>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title="Excluir paciente"
+        description={
+          pendingDelete
+            ? `Excluir o cadastro de ${pendingDelete.name}? Essa ação não pode ser desfeita.`
+            : ''
+        }
+        confirmLabel="Excluir"
+        destructive
+        loading={deletePatient.isPending}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }
