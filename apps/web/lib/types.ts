@@ -87,3 +87,11 @@ export interface UserProfile {
   role: 'PROFESSIONAL' | 'RECEPTIONIST' | 'SUPERVISOR';
   planType: 'STARTER' | 'PRO' | 'CLINIC';
 }
+
+export interface AppNotification {
+  id: string;
+  type: 'CHARGE' | 'PAYMENT_REMINDER' | 'APPOINTMENT_REMINDER' | 'SYSTEM';
+  payload: { summary?: string; [key: string]: unknown };
+  createdAt: string;
+  readAt: string | null;
+}

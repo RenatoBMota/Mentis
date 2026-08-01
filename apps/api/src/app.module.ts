@@ -17,6 +17,7 @@ import { WhatsAppModule } from './modules/whatsapp/whatsapp.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
     ReportsModule,
     DashboardModule,
     AuditLogsModule,
+    NotificationsModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: TenantContextInterceptor },
