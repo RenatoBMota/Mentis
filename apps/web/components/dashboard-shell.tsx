@@ -1,63 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import {
-  CalendarDays,
-  ClipboardList,
-  FileText,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-  Users,
-  Wallet,
-  Wallet2,
-  BarChart3,
-} from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLogout } from '@/lib/use-logout';
+import { NAV_GROUPS } from './nav-groups';
+import { MobileNav } from './mobile-nav';
 import { NotificationBell } from './notification-bell';
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: React.ComponentType<{ size?: number }>;
-}
-
-const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
-  {
-    label: 'Principal',
-    items: [
-      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/agenda', label: 'Agenda', icon: CalendarDays },
-      { href: '/patients', label: 'Pacientes', icon: Users },
-      { href: '/medical-records', label: 'Prontuário', icon: FileText },
-      { href: '/sessions', label: 'Sessões', icon: ClipboardList },
-    ],
-  },
-  {
-    label: 'Financeiro',
-    items: [
-      { href: '/financial/office', label: 'Consultório', icon: Wallet },
-      { href: '/financial/personal', label: 'Pessoal', icon: Wallet2 },
-    ],
-  },
-  {
-    label: 'Análise',
-    items: [
-      { href: '/reports', label: 'Relatórios', icon: BarChart3 },
-      { href: '/settings', label: 'Configurações', icon: Settings },
-    ],
-  },
-];
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
-
-  function handleLogout() {
-    localStorage.removeItem('mentis_access_token');
-    router.push('/login');
-  }
+  const logout = useLogout();
 
   return (
     <div className="flex min-h-screen bg-ground">
@@ -101,7 +55,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <button
-          onClick={handleLogout}
+          onClick={logout}
           className="flex items-center gap-2 rounded-md border-t border-border px-2 pt-3 text-sm text-ink-muted hover:text-ink"
         >
           <LogOut size={16} />
@@ -109,7 +63,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </button>
       </aside>
       <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-end border-b border-border bg-surface-base px-6 py-2 md:px-8">
+        <header className="flex items-center justify-between border-b border-border bg-surface-base px-4 py-2 md:justify-end md:px-8">
+          <MobileNav />
           <NotificationBell />
         </header>
         <main className="flex-1 p-6 md:p-8">{children}</main>
