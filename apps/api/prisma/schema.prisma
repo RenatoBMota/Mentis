@@ -185,6 +185,11 @@ model Patient {
   pricePerSession  Decimal               @map("price_per_session") @db.Decimal(10, 2)
   status           PatientStatus         @default(IN_EVALUATION)
   consentGivenAt   DateTime?             @map("consent_given_at")
+  /// Criptografado (AES-256), como o restante do conteúdo clínico.
+  anamnesis        String?
+  /// Criptografado (AES-256). Documento "vivo" (edição in-place), diferente
+  /// da evolução por sessão, que é um log imutável (MedicalRecord).
+  treatmentPlan    String?               @map("treatment_plan")
   createdAt        DateTime              @default(now()) @map("created_at")
   updatedAt        DateTime              @updatedAt @map("updated_at")
   deletedAt        DateTime?             @map("deleted_at")

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Patient } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TenantContext } from '../../common/tenant/tenant-context';
+import { CryptoService } from '../../common/crypto/crypto.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { ListPatientsQueryDto } from './dto/list-patients-query.dto';
@@ -12,7 +13,16 @@ export class PatientsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tenantContext: TenantContext,
+    private readonly crypto: CryptoService,
   ) {}
+
+  private decryptClinicalFields(patient: Patient): Patient {
+    return {
+      ...patient,
+      anamnesis: this.crypto.decryptOptional(patient.anamnesis) ?? null,
+      treatmentPlan: this.crypto.decryptOptional(patient.treatmentPlan) ?? null,
+    };
+  }
 
   private get tenant() {
     const ctx = this.tenantContext.get();
@@ -70,12 +80,21 @@ export class PatientsService {
     if (!patient) {
       throw new NotFoundException('PATIENT_NOT_FOUND');
     }
-    return patient;
+    return this.decryptClinicalFields(patient);
   }
 
   async update(id: string, dto: UpdatePatientDto): Promise<Patient> {
     await this.findOne(id);
-    return this.prisma.patient.update({ where: { id }, data: dto });
+    const { anamnesis, treatmentPlan, ...rest } = dto;
+    const updated = await this.prisma.patient.update({
+      where: { id },
+      data: {
+        ...rest,
+        anamnesis: this.crypto.encryptOptional(anamnesis),
+        treatmentPlan: this.crypto.encryptOptional(treatmentPlan),
+      },
+    });
+    return this.decryptClinicalFields(updated);
   }
 
   /** Exclusão lógica (soft-delete) — histórico clínico e financeiro nunca é perdido. */
