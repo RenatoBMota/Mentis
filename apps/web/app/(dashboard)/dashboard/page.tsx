@@ -2,8 +2,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { KpiCard } from '@/components/kpi-card';
+import { AttendanceTrendChart, RevenueTrendChart } from '@/components/trend-chart';
 import { apiFetch } from '@/lib/api-client';
 import { useAuthToken } from '@/lib/use-auth-token';
+import { useDashboardTrend } from '@/lib/hooks/use-dashboard';
 
 interface DashboardSummary {
   appointmentsToday: number;
@@ -42,6 +44,9 @@ export default function DashboardPage() {
   const forecast = forecastQuery.data?.data;
   const loading = summaryQuery.isLoading || forecastQuery.isLoading;
 
+  const trendQuery = useDashboardTrend(30);
+  const trend = trendQuery.data?.data ?? [];
+
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-bold text-ink">Visão Geral</h1>
@@ -64,6 +69,11 @@ export default function DashboardPage() {
           value={currency.format(forecast?.total ?? 0)}
           loading={loading}
         />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <RevenueTrendChart data={trend} loading={trendQuery.isLoading} />
+        <AttendanceTrendChart data={trend} loading={trendQuery.isLoading} />
       </div>
     </div>
   );
