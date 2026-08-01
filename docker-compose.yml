@@ -48,8 +48,10 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-mentis}:${POSTGRES_PASSWORD:-mentis}@postgres:5432/${POSTGRES_DB:-mentis}?schema=public
       REDIS_URL: redis://redis:6379
       UPLOADS_DIR: /repo/apps/api/uploads
+    # Só acessível pela rede interna do Compose — em produção, o Caddy é o
+    # único ponto de entrada público (portas 80/443). Ver Caddyfile.
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3001:3001"
     volumes:
       # Arquivos da Biblioteca Digital (criptografados) — precisam sobreviver
       # a rebuilds/redeploys do container.
@@ -68,12 +70,31 @@ services:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     container_name: mentis-web
     restart: unless-stopped
+    # Mesma lógica do api: só a rede interna do Compose acessa direto; o
+    # tráfego público passa pelo Caddy.
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
+      - api
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: mentis-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - mentis_caddy_data:/data
+      - mentis_caddy_config:/config
+    depends_on:
+      - web
       - api
 
 volumes:
   mentis_postgres_data:
   mentis_redis_data:
   mentis_uploads_data:
+  mentis_caddy_data:
+  mentis_caddy_config:
