@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { FileText, Search, Trash2 } from 'lucide-react';
+import { FileText, Search, Trash2, UserRound } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -15,16 +15,9 @@ import { usePatients } from '@/lib/hooks/use-patients';
 import { useAuthToken } from '@/lib/use-auth-token';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { apiFetch } from '@/lib/api-client';
+import { currency, RECURRENCE_LABELS } from '@/lib/patient-format';
 import { PatientStatus } from '@/lib/types';
 import { NewPatientDialog } from './new-patient-dialog';
-
-const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-
-const RECURRENCE_LABELS: Record<string, string> = {
-  WEEKLY: 'Semanal',
-  BIWEEKLY: 'Quinzenal',
-  ONE_OFF: 'Avulsa',
-};
 
 const STATUS_FILTERS: { label: string; value: PatientStatus | undefined }[] = [
   { label: 'Todos', value: undefined },
@@ -185,6 +178,12 @@ export default function PatientsPage() {
               <p>{RECURRENCE_LABELS[patient.recurrenceType]}</p>
               <p className="font-medium text-ink">{currency.format(Number(patient.pricePerSession))}</p>
               <div className="mt-3 flex gap-2">
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/patients/${patient.id}`}>
+                    <UserRound size={14} />
+                    Visão Geral
+                  </Link>
+                </Button>
                 <Button variant="outline" size="sm" asChild>
                   <Link href={`/medical-records?patientId=${patient.id}`}>
                     <FileText size={14} />

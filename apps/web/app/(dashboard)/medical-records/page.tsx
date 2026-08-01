@@ -2,21 +2,19 @@
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Printer } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { usePatient, usePatients } from '@/lib/hooks/use-patients';
-import { useMedicalRecords } from '@/lib/hooks/use-medical-records';
-import { openReferralPdf, useReferrals } from '@/lib/hooks/use-referrals';
+import { openReferralPdf } from '@/lib/hooks/use-referrals';
+import { usePatientTimeline } from '@/lib/hooks/use-patient-timeline';
 import { useAuthToken } from '@/lib/use-auth-token';
 import { NewEvolutionDialog } from './new-evolution-dialog';
 import { ExportPdfDialog } from './export-pdf-dialog';
 import { NewReferralDialog } from './new-referral-dialog';
 import { ClinicalInfoPanel } from './clinical-info-panel';
 import { AssessmentPanel } from './assessment-panel';
+import { Timeline } from './timeline';
 
 /** Prontuário Clínico & Evolução (PRD 9.6). */
 function MedicalRecordsContent() {
@@ -32,41 +30,13 @@ function MedicalRecordsContent() {
     }
   }, [patientId, patients]);
 
-  const recordsQuery = useMedicalRecords(patientId);
-  const records = useMemo(
-    () => [...(recordsQuery.data?.data ?? [])].sort((a, b) => a.sessionNumber - b.sessionNumber),
-    [recordsQuery.data],
-  );
-  const nextSessionNumber = records.length > 0 ? records[records.length - 1].sessionNumber + 1 : 1;
-
-  const referralsQuery = useReferrals(patientId);
-  const referrals = useMemo(() => referralsQuery.data?.data ?? [], [referralsQuery.data]);
+  const { timeline, nextSessionNumber, isLoading: timelineLoading } = usePatientTimeline(patientId);
 
   const patientQuery = usePatient(patientId);
   const patient = patientQuery.data;
 
   const token = useAuthToken();
   const { toast } = useToast();
-
-  type TimelineItem =
-    | { kind: 'evolution'; date: string; record: (typeof records)[number] }
-    | { kind: 'referral'; date: string; referral: (typeof referrals)[number] };
-
-  const timeline: TimelineItem[] = useMemo(() => {
-    const evolutionItems: TimelineItem[] = records.map((record) => ({
-      kind: 'evolution',
-      date: record.createdAt,
-      record,
-    }));
-    const referralItems: TimelineItem[] = referrals.map((referral) => ({
-      kind: 'referral',
-      date: referral.createdAt,
-      referral,
-    }));
-    return [...evolutionItems, ...referralItems].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-    );
-  }, [records, referrals]);
 
   async function handlePrintReferral(id: string) {
     if (!token) return;
@@ -76,8 +46,6 @@ function MedicalRecordsContent() {
       toast('Não foi possível abrir o documento. Tente novamente.', 'error');
     }
   }
-
-  const loading = recordsQuery.isLoading || referralsQuery.isLoading;
 
   return (
     <div className="flex flex-col gap-6">
@@ -118,77 +86,11 @@ function MedicalRecordsContent() {
 
       {patientId && <AssessmentPanel patientId={patientId} />}
 
-      {patientId && loading && <div className="skeleton h-40" />}
+      {patientId && timelineLoading && <div className="skeleton h-40" />}
 
-      {patientId && !loading && timeline.length === 0 && (
-        <p className="text-sm text-ink-faint">Nenhuma evolução registrada ainda.</p>
+      {patientId && !timelineLoading && (
+        <Timeline items={timeline} onPrintReferral={handlePrintReferral} />
       )}
-
-      <div className="flex flex-col gap-4">
-        {timeline.map((item) =>
-          item.kind === 'referral' ? (
-            <Card key={`referral-${item.referral.id}`} className="border-accent-primary/30 bg-accent-soft/30">
-              <CardContent className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-ink">Encaminhamento — {item.referral.type}</h3>
-                  <span className="text-xs text-ink-faint">
-                    {new Date(item.referral.createdAt).toLocaleString('pt-BR')}
-                  </span>
-                </div>
-                {item.referral.recipient && (
-                  <p className="text-sm text-ink-muted">
-                    <span className="font-medium text-ink-muted">Destinatário: </span>
-                    {item.referral.recipient}
-                  </p>
-                )}
-                <p className="text-sm text-ink-muted">{item.referral.content}</p>
-                <div className="mt-1">
-                  <Button variant="outline" size="sm" onClick={() => handlePrintReferral(item.referral.id)}>
-                    <Printer size={14} />
-                    Abrir / Imprimir
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card key={item.record.id}>
-              <CardContent className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-ink">Sessão nº {item.record.sessionNumber}</h3>
-                  <span className="text-xs text-ink-faint">
-                    {new Date(item.record.createdAt).toLocaleString('pt-BR')}
-                  </span>
-                </div>
-                <p className="text-sm text-ink-muted">{item.record.evolutionText}</p>
-                {item.record.observations && (
-                  <p className="text-sm text-ink-muted">
-                    <span className="font-medium text-ink-muted">Observações: </span>
-                    {item.record.observations}
-                  </p>
-                )}
-                {item.record.stepsText && (
-                  <p className="text-sm text-ink-muted">
-                    <span className="font-medium text-ink-muted">Próximos passos: </span>
-                    {item.record.stepsText}
-                  </p>
-                )}
-                {item.record.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {item.record.tags.map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="rounded-full border border-border px-2 py-0.5 text-xs text-ink-muted"
-                      >
-                        {tag.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ),
-        )}
-      </div>
     </div>
   );
 }
