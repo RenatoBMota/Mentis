@@ -201,6 +201,7 @@ model Patient {
   medicalRecords MedicalRecord[]
   referrals      Referral[]
   assessments    Assessment[]
+  documents      PatientDocument[]
 
   @@index([tenantId])
   @@index([userId])
@@ -444,4 +445,35 @@ model Assessment {
 
   @@index([patientId])
   @@map("assessments")
+}
+
+enum DocumentCategory {
+  LAUDO
+  TAREFA_CASA
+  EXERCICIO
+  OUTRO
+}
+
+/// Biblioteca digital do paciente: laudos, tarefas de casa e exercícios
+/// anexados pelo profissional. O arquivo em si é criptografado (AES-256-GCM)
+/// e gravado em disco (UPLOADS_DIR); storageKey é o caminho relativo interno,
+/// nunca exposto ao cliente — o download sempre passa pelo endpoint
+/// autenticado, nunca por uma URL estática.
+model PatientDocument {
+  id          String           @id @default(uuid())
+  patientId   String           @map("patient_id")
+  createdById String           @map("created_by_id")
+  category    DocumentCategory
+  title       String
+  description String?
+  fileName    String           @map("file_name")
+  mimeType    String           @map("mime_type")
+  fileSize    Int              @map("file_size")
+  storageKey  String           @map("storage_key")
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  @@index([patientId])
+  @@map("patient_documents")
 }

@@ -47,8 +47,13 @@ services:
       # qualquer DATABASE_URL/REDIS_URL "localhost" herdado do .env.
       DATABASE_URL: postgresql://${POSTGRES_USER:-mentis}:${POSTGRES_PASSWORD:-mentis}@postgres:5432/${POSTGRES_DB:-mentis}?schema=public
       REDIS_URL: redis://redis:6379
+      UPLOADS_DIR: /repo/apps/api/uploads
     ports:
       - "3001:3001"
+    volumes:
+      # Arquivos da Biblioteca Digital (criptografados) — precisam sobreviver
+      # a rebuilds/redeploys do container.
+      - mentis_uploads_data:/repo/apps/api/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -71,3 +76,4 @@ services:
 volumes:
   mentis_postgres_data:
   mentis_redis_data:
+  mentis_uploads_data:

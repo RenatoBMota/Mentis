@@ -24,6 +24,9 @@ coverage/
 # Prisma
 apps/api/prisma/dev.db
 
+# Biblioteca Digital (arquivos enviados localmente em dev)
+apps/api/uploads/
+
 # IDE / OS
 .vscode/*
 !.vscode/extensions.json

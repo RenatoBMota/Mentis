@@ -20,6 +20,7 @@ import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ReferralsModule } from './modules/referrals/referrals.module';
 import { AssessmentsModule } from './modules/assessments/assessments.module';
+import { DocumentsModule } from './modules/documents/documents.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AssessmentsModule } from './modules/assessments/assessments.module';
     NotificationsModule,
     ReferralsModule,
     AssessmentsModule,
+    DocumentsModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: TenantContextInterceptor },

@@ -99,6 +99,20 @@ export interface Assessment {
   createdAt: string;
 }
 
+export type DocumentCategory = 'LAUDO' | 'TAREFA_CASA' | 'EXERCICIO' | 'OUTRO';
+
+export interface PatientDocument {
+  id: string;
+  patientId: string;
+  category: DocumentCategory;
+  title: string;
+  description: string | null;
+  fileName: string;
+  mimeType: string;
+  fileSize: number;
+  createdAt: string;
+}
+
 export interface UserProfile {
   id: string;
   name: string;

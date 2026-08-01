@@ -69,4 +69,27 @@ export class CryptoService implements OnModuleInit {
   decryptOptional(payload?: string | null): string | undefined {
     return payload == null ? undefined : this.decrypt(payload);
   }
+
+  /**
+   * Mesmo esquema AES-256-GCM de encrypt/decrypt, mas para conteúdo binário
+   * (arquivos da Biblioteca Digital) — layout em bytes em vez de string
+   * base64, gravado direto em disco: iv (12 bytes) + authTag (16 bytes) + ciphertext.
+   */
+  encryptBuffer(plainBuffer: Buffer): Buffer {
+    const iv = randomBytes(IV_LENGTH_BYTES);
+    const cipher = createCipheriv(ALGORITHM, this.key, iv);
+    const ciphertext = Buffer.concat([cipher.update(plainBuffer), cipher.final()]);
+    const authTag = cipher.getAuthTag();
+    return Buffer.concat([iv, authTag, ciphertext]);
+  }
+
+  decryptBuffer(payload: Buffer): Buffer {
+    const iv = payload.subarray(0, IV_LENGTH_BYTES);
+    const authTag = payload.subarray(IV_LENGTH_BYTES, IV_LENGTH_BYTES + 16);
+    const ciphertext = payload.subarray(IV_LENGTH_BYTES + 16);
+
+    const decipher = createDecipheriv(ALGORITHM, this.key, iv);
+    decipher.setAuthTag(authTag);
+    return Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  }
 }
