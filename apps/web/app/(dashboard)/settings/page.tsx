@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useToast } from '@/components/ui/toast';
 import { ApiError } from '@/lib/api-client';
 import { useChangePassword, useProfile, useUpdateProfile } from '@/lib/hooks/use-profile';
+import { TeamPanel } from './team-panel';
 
 const PLAN_LABELS: Record<string, string> = {
   STARTER: 'Starter',
@@ -168,6 +169,8 @@ export default function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
+
+      {profile?.role === 'PROFESSIONAL' && <TeamPanel />}
 
       <ChangePasswordDialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen} />
     </div>

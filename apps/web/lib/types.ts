@@ -113,6 +113,8 @@ export interface PatientDocument {
   createdAt: string;
 }
 
+export type UserRole = 'PROFESSIONAL' | 'RECEPTIONIST' | 'SUPERVISOR';
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -120,8 +122,17 @@ export interface UserProfile {
   crp: string | null;
   phone: string | null;
   pixKey: string | null;
-  role: 'PROFESSIONAL' | 'RECEPTIONIST' | 'SUPERVISOR';
+  role: UserRole;
   planType: 'STARTER' | 'PRO' | 'CLINIC';
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  planType: 'STARTER' | 'PRO' | 'CLINIC';
+  createdAt: string;
 }
 
 export interface AppNotification {

@@ -21,6 +21,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { ReferralsModule } from './modules/referrals/referrals.module';
 import { AssessmentsModule } from './modules/assessments/assessments.module';
 import { DocumentsModule } from './modules/documents/documents.module';
+import { TeamModule } from './modules/team/team.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { DocumentsModule } from './modules/documents/documents.module';
     ReferralsModule,
     AssessmentsModule,
     DocumentsModule,
+    TeamModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: TenantContextInterceptor },
