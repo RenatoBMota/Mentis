@@ -194,6 +194,7 @@ model Patient {
   appointments   Appointment[]
   sessionRecords SessionRecord[]
   medicalRecords MedicalRecord[]
+  referrals      Referral[]
 
   @@index([tenantId])
   @@index([userId])
@@ -394,4 +395,23 @@ model Attachment {
 
   @@index([medicalRecordId])
   @@map("attachments")
+}
+
+/// Encaminhamento (exame, tratamento, outro profissional etc.), gerado a
+/// partir da Prontuário. content é criptografado (AES-256) em repouso, como
+/// o restante do conteúdo clínico (seção 11.1). O PDF é sempre gerado sob
+/// demanda a partir destes dados — nunca armazenado como arquivo solto.
+model Referral {
+  id          String   @id @default(uuid())
+  patientId   String   @map("patient_id")
+  createdById String   @map("created_by_id")
+  type        String
+  recipient   String?
+  content     String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  @@index([patientId])
+  @@map("referrals")
 }
