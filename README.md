@@ -66,6 +66,19 @@ pnpm dev:api   # http://localhost:3001
 pnpm dev:web   # http://localhost:3000
 ```
 
+## Deploy em produção
+
+A VPS roda tudo via Docker Compose: `postgres`, `redis`, `api`, `web` e um `caddy` na frente como proxy reverso, terminando HTTPS automaticamente (Let's Encrypt) em **mentis.renatomota.online** — ver `Caddyfile`. `api` e `web` só ficam acessíveis na rede interna do Compose; o Caddy é o único serviço com portas públicas (80/443).
+
+```bash
+cp .env.example .env
+# editar .env: segredos de produção + NEXT_PUBLIC_API_URL="https://mentis.renatomota.online/v1"
+
+docker compose up -d --build
+```
+
+Pré-requisitos: DNS de `mentis.renatomota.online` apontando para o IP da VPS, com as portas 80 e 443 liberadas no firewall (o Caddy usa a 80 para o desafio ACME antes de emitir o certificado).
+
 ## Design system
 
 Dark Mode em azul-marinho e slate, com acento ciano. Tokens em `apps/web/lib/design-tokens.ts` (ver seção 9.1 do PRD).
