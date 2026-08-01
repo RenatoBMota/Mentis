@@ -11,6 +11,7 @@ const buttonVariants = cva(
         default: 'bg-accent-primary text-accent-ink hover:bg-accent-strong',
         outline: 'border border-border bg-transparent text-ink hover:bg-surface-raised',
         ghost: 'text-ink hover:bg-surface-raised',
+        destructive: 'bg-status-danger text-accent-ink hover:bg-status-danger/90',
       },
       size: {
         default: 'h-10 px-4 py-2',

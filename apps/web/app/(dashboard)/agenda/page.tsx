@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, MapPin, Video } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin, Plus, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useWeeklyAgenda } from '@/lib/hooks/use-agenda';
@@ -51,6 +51,11 @@ export default function AgendaPage() {
     setDialogOpen(true);
   }
 
+  function handleNewSessionClick() {
+    setSelectedSlot(null);
+    setDialogOpen(true);
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -65,6 +70,10 @@ export default function AgendaPage() {
           </span>
           <Button variant="outline" size="sm" onClick={() => setWeekStart((prev) => addDays(prev, 7))}>
             <ChevronRight size={16} />
+          </Button>
+          <Button size="sm" onClick={handleNewSessionClick} className="ml-2">
+            <Plus size={16} />
+            Nova sessão
           </Button>
         </div>
       </div>

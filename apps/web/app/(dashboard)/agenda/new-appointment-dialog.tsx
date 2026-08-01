@@ -16,7 +16,28 @@ interface NewAppointmentDialogProps {
   initialDateTime: Date | null;
 }
 
-/** Modal de criação em até 30s (RF-03), pré-preenchido com o slot clicado. */
+function defaultSlot(): Date {
+  const d = new Date();
+  d.setMinutes(0, 0, 0);
+  d.setHours(d.getHours() + 1);
+  return d;
+}
+
+function toDateInputValue(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function toTimeInputValue(d: Date): string {
+  const h = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${h}:${min}`;
+}
+
+/** Modal de criação em até 30s (RF-03). Pré-preenchido com o slot clicado na grade,
+ * ou com o próximo horário cheio quando aberto pelo botão "Nova sessão". */
 export function NewAppointmentDialog({ open, onOpenChange, initialDateTime }: NewAppointmentDialogProps) {
   const patientsQuery = usePatients({ status: 'ACTIVE' });
   const createAppointment = useCreateAppointment();
@@ -24,6 +45,8 @@ export function NewAppointmentDialog({ open, onOpenChange, initialDateTime }: Ne
   const [patientId, setPatientId] = useState('');
   const [modality, setModality] = useState<AppointmentModality>('IN_PERSON');
   const [price, setPrice] = useState('');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const patients = patientsQuery.data?.data ?? [];
@@ -34,8 +57,12 @@ export function NewAppointmentDialog({ open, onOpenChange, initialDateTime }: Ne
       setModality('IN_PERSON');
       setPrice('');
       setError(null);
+
+      const seed = initialDateTime ?? defaultSlot();
+      setDate(toDateInputValue(seed));
+      setTime(toTimeInputValue(seed));
     }
-  }, [open]);
+  }, [open, initialDateTime]);
 
   function handlePatientChange(id: string) {
     setPatientId(id);
@@ -47,13 +74,17 @@ export function NewAppointmentDialog({ open, onOpenChange, initialDateTime }: Ne
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (!initialDateTime) return;
+    if (!date || !time) return;
     setError(null);
+
+    const [year, month, day] = date.split('-').map(Number);
+    const [hour, minute] = time.split(':').map(Number);
+    const dateTime = new Date(year, month - 1, day, hour, minute, 0, 0);
 
     try {
       await createAppointment.mutateAsync({
         patientId,
-        dateTime: initialDateTime.toISOString(),
+        dateTime: dateTime.toISOString(),
         modality,
         price: Number(price),
       });
@@ -68,13 +99,6 @@ export function NewAppointmentDialog({ open, onOpenChange, initialDateTime }: Ne
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Novo agendamento</DialogTitle>
-          {initialDateTime && (
-            <p className="text-sm text-ink-muted">
-              {initialDateTime.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })}
-              {' às '}
-              {initialDateTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-            </p>
-          )}
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
@@ -94,6 +118,17 @@ export function NewAppointmentDialog({ open, onOpenChange, initialDateTime }: Ne
                 </option>
               ))}
             </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="date">Data</Label>
+              <Input id="date" type="date" required value={date} onChange={(e) => setDate(e.target.value)} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="time">Horário</Label>
+              <Input id="time" type="time" required value={time} onChange={(e) => setTime(e.target.value)} />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
