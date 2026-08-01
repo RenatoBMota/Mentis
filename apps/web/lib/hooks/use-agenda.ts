@@ -42,3 +42,47 @@ export function useCreateAppointment() {
     },
   });
 }
+
+export interface UpdateAppointmentInput {
+  dateTime?: string;
+  modality?: AppointmentModality;
+  price?: number;
+}
+
+function useInvalidateAgenda() {
+  const queryClient = useQueryClient();
+  return () => {
+    queryClient.invalidateQueries({ queryKey: ['agenda-weekly'] });
+    queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
+  };
+}
+
+export function useUpdateAppointment(appointmentId: string | null) {
+  const token = useAuthToken();
+  const invalidate = useInvalidateAgenda();
+
+  return useMutation({
+    mutationFn: (input: UpdateAppointmentInput) =>
+      apiFetch<{ data: Appointment }>(`/agenda/appointments/${appointmentId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(input),
+        token: token!,
+      }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useCancelAppointment() {
+  const token = useAuthToken();
+  const invalidate = useInvalidateAgenda();
+
+  return useMutation({
+    mutationFn: (appointmentId: string) =>
+      apiFetch<{ data: Appointment }>(`/agenda/appointments/${appointmentId}/cancel`, {
+        method: 'PATCH',
+        token: token!,
+      }),
+    onSuccess: invalidate,
+  });
+}

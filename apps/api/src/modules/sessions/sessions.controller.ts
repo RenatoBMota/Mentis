@@ -20,4 +20,9 @@ export class SessionsController {
   complete(@Param('appointmentId') appointmentId: string) {
     return this.sessionsService.complete(appointmentId);
   }
+
+  @Patch(':appointmentId/no-show')
+  noShow(@Param('appointmentId') appointmentId: string) {
+    return this.sessionsService.noShow(appointmentId);
+  }
 }

@@ -1,8 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TenantContext } from '../../common/tenant/tenant-context';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
 const SESSION_DURATION_MINUTES = 60;
 const RECURRENCE_HORIZON_WEEKS = 8;
@@ -49,6 +50,42 @@ export class AgendaService {
     return { data: appointment };
   }
 
+  /** PATCH /v1/agenda/appointments/:id — reagendar horário/modalidade/valor. */
+  async update(id: string, dto: UpdateAppointmentDto) {
+    const { userId } = this.tenantContext.get()!;
+    const appointment = await this.prisma.appointment.findFirst({ where: { id, patient: { userId } } });
+    if (!appointment) {
+      throw new NotFoundException('APPOINTMENT_NOT_FOUND');
+    }
+
+    if (dto.dateTime) {
+      await this.assertNoConflict(appointment.patientId, new Date(dto.dateTime), id);
+    }
+
+    const updated = await this.prisma.appointment.update({
+      where: { id },
+      data: {
+        dateTime: dto.dateTime ? new Date(dto.dateTime) : undefined,
+        modality: dto.modality,
+        price: dto.price,
+      },
+    });
+
+    return { data: updated };
+  }
+
+  /** PATCH /v1/agenda/appointments/:id/cancel */
+  async cancel(id: string) {
+    const { userId } = this.tenantContext.get()!;
+    const appointment = await this.prisma.appointment.findFirst({ where: { id, patient: { userId } } });
+    if (!appointment) {
+      throw new NotFoundException('APPOINTMENT_NOT_FOUND');
+    }
+
+    const updated = await this.prisma.appointment.update({ where: { id }, data: { status: 'CANCELED' } });
+    return { data: updated };
+  }
+
   /**
    * RF-04: gera ocorrências futuras para sessões semanais/quinzenais, com até
    * RECURRENCE_HORIZON_WEEKS semanas de antecedência. Deve ser reexecutado
@@ -81,7 +118,7 @@ export class AgendaService {
     return { data: { seriesId, created: data.length } };
   }
 
-  private async assertNoConflict(patientId: string, dateTime: Date) {
+  private async assertNoConflict(patientId: string, dateTime: Date, excludeAppointmentId?: string) {
     const patient = await this.prisma.patient.findFirstOrThrow({ where: { id: patientId } });
     const windowStart = new Date(dateTime.getTime() - SESSION_DURATION_MINUTES * 60_000);
     const windowEnd = new Date(dateTime.getTime() + SESSION_DURATION_MINUTES * 60_000);
@@ -91,6 +128,7 @@ export class AgendaService {
         patient: { userId: patient.userId },
         status: { notIn: ['CANCELED'] },
         dateTime: { gt: windowStart, lt: windowEnd },
+        id: excludeAppointmentId ? { not: excludeAppointmentId } : undefined,
       },
     });
 
