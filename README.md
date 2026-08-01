@@ -68,7 +68,7 @@ pnpm dev:web   # http://localhost:3000
 
 ## Deploy em produção
 
-A VPS roda tudo via Docker Compose: `postgres`, `redis`, `api`, `web` e um `caddy` na frente como proxy reverso, terminando HTTPS automaticamente (Let's Encrypt) em **mentis.renatomota.online** — ver `Caddyfile`. `api` e `web` só ficam acessíveis na rede interna do Compose; o Caddy é o único serviço com portas públicas (80/443).
+A VPS já roda um **Traefik** compartilhado (stack separada, usada também pelo n8n) segurando as portas 80/443 e emitindo certificado via Let's Encrypt (resolver `mytlschallenge`). O Mentis não sobe proxy próprio — `api` e `web` entram na rede Docker desse Traefik (`n8n_default`) e ganham *labels* pra ele rotear **mentis.renatomota.online** até eles: `/v1/*` e `/docs*` → `api`, resto → `web`. As portas publicadas em `127.0.0.1` no `docker-compose.yml` são só para debug local (`curl localhost:3001` direto na VPS); quem expõe ao público é o Traefik.
 
 ```bash
 cp .env.example .env
@@ -77,7 +77,9 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Pré-requisitos: DNS de `mentis.renatomota.online` apontando para o IP da VPS, com as portas 80 e 443 liberadas no firewall (o Caddy usa a 80 para o desafio ACME antes de emitir o certificado).
+Pré-requisitos: DNS de `mentis.renatomota.online` já apontando para o IP da VPS, e a rede Docker externa `n8n_default` (do stack do Traefik) já existir — `docker compose up` falha se ela não existir ainda.
+
+Se a VPS não tiver um Traefik (ou outro proxy) já rodando, ou se o nome/rede do seu Traefik for diferente de `n8n_default`/`mytlschallenge`, ajuste o bloco `networks` e os `labels` de `api`/`web` no `docker-compose.yml` de acordo.
 
 ## Design system
 

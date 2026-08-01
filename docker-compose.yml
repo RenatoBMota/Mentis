@@ -48,14 +48,25 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-mentis}:${POSTGRES_PASSWORD:-mentis}@postgres:5432/${POSTGRES_DB:-mentis}?schema=public
       REDIS_URL: redis://redis:6379
       UPLOADS_DIR: /repo/apps/api/uploads
-    # Só acessível pela rede interna do Compose — em produção, o Caddy é o
-    # único ponto de entrada público (portas 80/443). Ver Caddyfile.
+    # 127.0.0.1 é só para debug local direto (curl na própria VPS) — quem
+    # expõe ao público é o Traefik já existente na VPS, via rede Docker
+    # compartilhada + labels abaixo (ver README, seção "Deploy em produção").
     ports:
       - "127.0.0.1:3001:3001"
     volumes:
       # Arquivos da Biblioteca Digital (criptografados) — precisam sobreviver
       # a rebuilds/redeploys do container.
       - mentis_uploads_data:/repo/apps/api/uploads
+    networks:
+      - default
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.mentis-api.rule: "Host(`mentis.renatomota.online`) && (PathPrefix(`/v1`) || PathPrefix(`/docs`))"
+      traefik.http.routers.mentis-api.entrypoints: "websecure"
+      traefik.http.routers.mentis-api.tls.certresolver: "mytlschallenge"
+      traefik.http.routers.mentis-api.priority: "10"
+      traefik.http.services.mentis-api.loadbalancer.server.port: "3001"
     depends_on:
       postgres:
         condition: service_healthy
@@ -70,31 +81,32 @@ services:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     container_name: mentis-web
     restart: unless-stopped
-    # Mesma lógica do api: só a rede interna do Compose acessa direto; o
-    # tráfego público passa pelo Caddy.
+    # Mesma lógica do api: 127.0.0.1 só para debug local; tráfego público
+    # entra pelo Traefik existente na VPS.
     ports:
       - "127.0.0.1:3000:3000"
+    networks:
+      - default
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.mentis-web.rule: "Host(`mentis.renatomota.online`)"
+      traefik.http.routers.mentis-web.entrypoints: "websecure"
+      traefik.http.routers.mentis-web.tls.certresolver: "mytlschallenge"
+      traefik.http.routers.mentis-web.priority: "1"
+      traefik.http.services.mentis-web.loadbalancer.server.port: "3000"
     depends_on:
       - api
 
-  caddy:
-    image: caddy:2-alpine
-    container_name: mentis-caddy
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - mentis_caddy_data:/data
-      - mentis_caddy_config:/config
-    depends_on:
-      - web
-      - api
+networks:
+  # Rede do Traefik que já roda na VPS (stack do n8n) — precisa existir
+  # antes do "docker compose up" (é criada por aquele outro stack, não por
+  # este). Ver README, seção "Deploy em produção".
+  traefik:
+    external: true
+    name: n8n_default
 
 volumes:
   mentis_postgres_data:
   mentis_redis_data:
   mentis_uploads_data:
-  mentis_caddy_data:
-  mentis_caddy_config:
