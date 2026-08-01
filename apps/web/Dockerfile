@@ -17,6 +17,10 @@ COPY apps/web/package.json apps/web/package.json
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+# O projeto ainda não versiona apps/web/public (Next.js não exige a pasta
+# para buildar) — garante que ela exista antes do COPY --from=build abaixo,
+# senão o build da imagem falha com "not found".
+RUN mkdir -p apps/web/public
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN pnpm --filter @mentis/web build
