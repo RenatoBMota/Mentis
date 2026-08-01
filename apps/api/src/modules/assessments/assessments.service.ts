@@ -4,11 +4,18 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { TenantContext } from '../../common/tenant/tenant-context';
 import { CryptoService } from '../../common/crypto/crypto.service';
 import { CreateAssessmentDto } from './dto/create-assessment.dto';
-import { hasClinicalAlert, severityLabel, validateAnswers } from './assessment-scoring';
+import {
+  computeTotalScore,
+  hasClinicalAlert,
+  severityLabel,
+  severityTone,
+  validateAnswers,
+} from './assessment-scoring';
 
 export interface AssessmentWithScore extends Omit<Assessment, 'answers'> {
   answers: number[];
   severity: string;
+  severityTone: 'success' | 'warning' | 'danger';
   clinicalAlert: boolean;
 }
 
@@ -31,6 +38,7 @@ export class AssessmentsService {
       ...assessment,
       answers,
       severity: severityLabel(assessment.type, assessment.totalScore),
+      severityTone: severityTone(assessment.type, assessment.totalScore),
       clinicalAlert: hasClinicalAlert(assessment.type, answers),
     };
   }
@@ -54,7 +62,7 @@ export class AssessmentsService {
       throw new BadRequestException((err as Error).message);
     }
 
-    const totalScore = dto.answers.reduce((sum, value) => sum + value, 0);
+    const totalScore = computeTotalScore(dto.type, dto.answers);
 
     const assessment = await this.prisma.$transaction(async (tx) => {
       const created = await tx.assessment.create({

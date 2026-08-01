@@ -15,7 +15,13 @@ interface AssessmentPanelProps {
   patientId: string;
 }
 
-const TYPES: AssessmentType[] = ['PHQ9', 'GAD7'];
+const TYPES: AssessmentType[] = ['PHQ9', 'GAD7', 'EPDS', 'SRQ20', 'AUDIT', 'PSS10', 'WHO5'];
+
+const TONE_CLASSES: Record<Assessment['severityTone'], string> = {
+  success: 'bg-status-success-soft text-status-success',
+  warning: 'bg-status-warning-soft text-status-warning',
+  danger: 'bg-status-danger-soft text-status-danger',
+};
 
 export function AssessmentPanel({ patientId }: AssessmentPanelProps) {
   const assessmentsQuery = useAssessments(patientId);
@@ -122,11 +128,7 @@ export function AssessmentPanel({ patientId }: AssessmentPanelProps) {
                           <span
                             className={cn(
                               'rounded-full px-2 py-0.5 text-xs font-medium',
-                              assessment.severity === 'Mínima' || assessment.severity === 'Leve'
-                                ? 'bg-status-success-soft text-status-success'
-                                : assessment.severity === 'Moderada'
-                                  ? 'bg-status-warning-soft text-status-warning'
-                                  : 'bg-status-danger-soft text-status-danger',
+                              TONE_CLASSES[assessment.severityTone],
                             )}
                           >
                             {assessment.severity}

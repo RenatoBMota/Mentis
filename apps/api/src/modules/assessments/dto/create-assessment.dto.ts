@@ -5,13 +5,17 @@ export class CreateAssessmentDto {
   @IsEnum(AssessmentType)
   type!: AssessmentType;
 
-  /** Uma resposta (0–3) por item da escala — validado contra o número exato
-   * de itens do tipo escolhido no service (9 para PHQ-9, 7 para GAD-7). */
+  /**
+   * Uma resposta por item da escala — bounds aqui são só uma faixa larga
+   * (5 a 20 itens, valores 0–5) cobrindo todos os tipos suportados. A
+   * validação exata (nº de itens e valores aceitos por item de cada escala)
+   * é feita em validateAnswers (assessment-scoring.ts), no service.
+   */
   @IsArray()
-  @ArrayMinSize(7)
-  @ArrayMaxSize(9)
+  @ArrayMinSize(5)
+  @ArrayMaxSize(20)
   @IsInt({ each: true })
   @Min(0, { each: true })
-  @Max(3, { each: true })
+  @Max(5, { each: true })
   answers!: number[];
 }
