@@ -62,6 +62,10 @@ services:
       - traefik
     labels:
       traefik.enable: "true"
+      # Obrigatório quando o container está em mais de uma rede (aqui: a
+      # interna do Compose + a do Traefik) — sem isso o Traefik pode
+      # escolher a rede errada pra alcançar o container e dar Gateway Timeout.
+      traefik.docker.network: "n8n_default"
       traefik.http.routers.mentis-api.rule: "Host(`mentis.renatomota.online`) && (PathPrefix(`/v1`) || PathPrefix(`/docs`))"
       traefik.http.routers.mentis-api.entrypoints: "websecure"
       traefik.http.routers.mentis-api.tls.certresolver: "mytlschallenge"
@@ -90,6 +94,7 @@ services:
       - traefik
     labels:
       traefik.enable: "true"
+      traefik.docker.network: "n8n_default"
       traefik.http.routers.mentis-web.rule: "Host(`mentis.renatomota.online`)"
       traefik.http.routers.mentis-web.entrypoints: "websecure"
       traefik.http.routers.mentis-web.tls.certresolver: "mytlschallenge"
